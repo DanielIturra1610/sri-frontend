@@ -131,6 +131,38 @@ export class AuthService {
   }
 
   /**
+   * Request password reset email
+   */
+  static async forgotPassword(email: string): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<ApiResponse<{ message: string }>>(
+        API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+        { email }
+      );
+
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Reset password with token
+   */
+  static async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<ApiResponse<{ message: string }>>(
+        API_ENDPOINTS.AUTH.RESET_PASSWORD,
+        { token, password }
+      );
+
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
    * Get current user from localStorage
    */
   static getCurrentUser(): AuthUser | null {
