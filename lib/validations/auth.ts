@@ -35,7 +35,7 @@ export const registerSchema = z.object({
     .string()
     .optional(),
   plan: z.enum(['basic', 'professional', 'enterprise'], {
-    errorMap: () => ({ message: 'Seleccione un plan válido' }),
+    message: 'Seleccione un plan válido',
   }),
   // User info
   user: z.object({

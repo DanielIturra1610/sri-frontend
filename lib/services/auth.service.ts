@@ -1,5 +1,6 @@
 import apiClient, { ApiResponse, handleApiError } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { setCookie, deleteCookie } from '@/lib/utils/cookies';
 import type {
   LoginCredentials,
   RegisterData,
@@ -202,33 +203,70 @@ export class AuthService {
   }
 
   /**
-   * Set tokens in localStorage
+   * Set tokens in localStorage and cookies
    */
   private static setTokens(tokens: AuthTokens): void {
     if (typeof window === 'undefined') return;
 
+    // Store in localStorage (for client-side JS access)
     localStorage.setItem('access_token', tokens.access_token);
     localStorage.setItem('refresh_token', tokens.refresh_token);
     localStorage.setItem('token_expires_in', tokens.expires_in.toString());
+
+    // Store in cookies (for middleware access)
+    const expiresInSeconds = tokens.expires_in;
+    setCookie('access_token', tokens.access_token, {
+      expires: expiresInSeconds,
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    });
+    setCookie('refresh_token', tokens.refresh_token, {
+      expires: expiresInSeconds * 2, // Refresh token lasts longer
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    });
   }
 
   /**
-   * Set user in localStorage
+   * Set user in localStorage and cookies
    */
   private static setUser(user: AuthUser): void {
     if (typeof window === 'undefined') return;
+
+    // Store in localStorage
     localStorage.setItem('user', JSON.stringify(user));
+
+    // Store in cookies (for middleware - only essential data)
+    setCookie('user', JSON.stringify({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      full_name: user.full_name,
+    }), {
+      expires: 7 * 24 * 60 * 60, // 7 days
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    });
   }
 
   /**
-   * Clear all auth data
+   * Clear all auth data from localStorage and cookies
    */
   private static clearAuth(): void {
     if (typeof window === 'undefined') return;
 
+    // Clear localStorage
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_expires_in');
     localStorage.removeItem('user');
+
+    // Clear cookies
+    deleteCookie('access_token', { path: '/' });
+    deleteCookie('refresh_token', { path: '/' });
+    deleteCookie('user', { path: '/' });
   }
 }
