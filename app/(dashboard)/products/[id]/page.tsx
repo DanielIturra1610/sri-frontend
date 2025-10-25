@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Edit, Trash2, Package, DollarSign, Tag, Box } from 'lucide-react';
-import { ProductService } from '@/lib/services/product.service';
+import { ProductService } from '@/services/productService';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Alert, Skeleton } from '@/components/ui';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';

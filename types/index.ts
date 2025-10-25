@@ -95,6 +95,12 @@ export interface Category {
   created_at: string;
 }
 
+export interface CreateCategoryDTO {
+  name: string;
+  description?: string;
+  parent_id?: string;
+}
+
 // Location types
 export interface Location {
   id: string;

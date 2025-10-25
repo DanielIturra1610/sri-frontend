@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { AuthService } from '@/lib/services/auth.service';
+import { AuthService } from '@/services/authService';
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations/auth';
 
 export default function ForgotPasswordPage() {
