@@ -42,3 +42,7 @@ export type { SpinnerProps, LoadingOverlayProps } from './Spinner';
 
 export { Skeleton, SkeletonCard, SkeletonTable, SkeletonAvatar } from './Skeleton';
 export type { SkeletonProps } from './Skeleton';
+
+// Data display components
+export { DataTable } from './DataTable';
+export type { DataTableProps } from './DataTable';
