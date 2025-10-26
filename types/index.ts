@@ -114,6 +114,14 @@ export interface Location {
 
 export type LocationType = 'warehouse' | 'store' | 'distribution_center' | 'supplier' | 'other';
 
+export interface CreateLocationDTO {
+  code: string;
+  name: string;
+  type: LocationType;
+  description?: string;
+  is_active?: boolean;
+}
+
 // Stock types
 export interface Stock {
   id: string;
