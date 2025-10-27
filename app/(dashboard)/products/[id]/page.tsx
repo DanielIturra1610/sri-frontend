@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Edit, Trash2, Package, DollarSign, Tag, Box } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, Package, DollarSign, Tag, Box, MapPin, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { ProductService } from '@/services/productService';
+import { StockService } from '@/services/stockService';
 import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Alert, Skeleton } from '@/components/ui';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';
 import { unitOfMeasureLabels } from '@/lib/validations/product';
-import type { Product } from '@/types';
+import { transactionTypeLabels, transactionTypeColors } from '@/lib/validations/stock';
+import type { Product, Stock, Transaction } from '@/types';
 import toast from 'react-hot-toast';
 
 export default function ProductDetailPage() {
@@ -17,7 +19,10 @@ export default function ProductDetailPage() {
   const productId = params.id as string;
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [stock, setStock] = useState<Stock[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingStock, setIsLoadingStock] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Load product details
@@ -41,6 +46,43 @@ export default function ProductDetailPage() {
       loadProduct();
     }
   }, [productId]);
+
+  // Load stock and transactions
+  useEffect(() => {
+    const loadStockData = async () => {
+      try {
+        setIsLoadingStock(true);
+        const [stockData, transactionsData] = await Promise.all([
+          StockService.getStockByProduct(productId),
+          StockService.getTransactions(),
+        ]);
+        setStock(stockData);
+        // Filter transactions for this product and get last 5
+        const productTransactions = transactionsData
+          .filter((t) => t.product_id === productId)
+          .slice(0, 5);
+        setTransactions(productTransactions);
+      } catch (error: any) {
+        console.error('Error loading stock data:', error);
+      } finally {
+        setIsLoadingStock(false);
+      }
+    };
+
+    if (productId) {
+      loadStockData();
+    }
+  }, [productId]);
+
+  // Get stock status for a location
+  const getStockStatus = (item: Stock): 'out' | 'low' | 'adequate' => {
+    if (item.quantity === 0) return 'out';
+    if (item.minimum_stock && item.quantity < item.minimum_stock) return 'low';
+    return 'adequate';
+  };
+
+  // Calculate total stock across all locations
+  const totalStock = stock.reduce((sum, item) => sum + item.quantity, 0);
 
   // Handle delete
   const handleDelete = async () => {
@@ -346,33 +388,130 @@ export default function ProductDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Stock by Location - Placeholder */}
+          {/* Stock by Location */}
           <Card>
             <CardHeader>
-              <CardTitle>Stock por Ubicación</CardTitle>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Stock por Ubicación
+                </span>
+                {!isLoadingStock && (
+                  <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    Total: {totalStock}
+                  </span>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                <p className="text-sm">Disponible en próxima versión</p>
-                <p className="text-xs mt-2">
-                  Aquí se mostrará el stock disponible en cada ubicación
-                </p>
-              </div>
+              {isLoadingStock ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-16 w-full" />
+                  <Skeleton className="h-16 w-full" />
+                </div>
+              ) : stock.length === 0 ? (
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                  <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Sin stock registrado</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {stock.map((item) => {
+                    const status = getStockStatus(item);
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {item.location_name}
+                          </p>
+                          {item.last_movement_at && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              Último movimiento:{' '}
+                              {new Date(item.last_movement_at).toLocaleDateString('es-CL')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {item.quantity}
+                          </span>
+                          {status === 'out' && (
+                            <XCircle className="h-5 w-5 text-red-600" />
+                          )}
+                          {status === 'low' && (
+                            <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                          )}
+                          {status === 'adequate' && (
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Transaction History - Placeholder */}
+          {/* Transaction History */}
           <Card>
             <CardHeader>
               <CardTitle>Historial de Transacciones</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-6 text-gray-500 dark:text-gray-400">
-                <p className="text-sm">Disponible en próxima versión</p>
-                <p className="text-xs mt-2">
-                  Aquí se mostrará el historial de movimientos de inventario
-                </p>
-              </div>
+              {isLoadingStock ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : transactions.length === 0 ? (
+                <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                  <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Sin transacciones registradas</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {transactions.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <Badge variant={transactionTypeColors[transaction.transaction_type]}>
+                          {transactionTypeLabels[transaction.transaction_type] || transaction.transaction_type}
+                        </Badge>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {new Date(transaction.created_at).toLocaleDateString('es-CL')}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {transaction.location_name}
+                          </p>
+                          {transaction.notes && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {transaction.notes}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                            {transaction.quantity > 0 ? '+' : ''}{transaction.quantity}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {transaction.previous_quantity} → {transaction.new_quantity}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

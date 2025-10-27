@@ -159,6 +159,14 @@ export interface Transaction {
 
 export type TransactionType = 'purchase' | 'sale' | 'adjustment' | 'transfer_in' | 'transfer_out' | 'count';
 
+export interface CreateTransactionDTO {
+  product_id: string;
+  location_id: string;
+  transaction_type: TransactionType;
+  quantity: number;
+  notes?: string;
+}
+
 // Transfer types
 export interface Transfer {
   id: string;
@@ -179,6 +187,14 @@ export interface Transfer {
 }
 
 export type TransferStatus = 'pending' | 'in_transit' | 'completed' | 'cancelled';
+
+export interface CreateTransferDTO {
+  product_id: string;
+  from_location_id: string;
+  to_location_id: string;
+  quantity: number;
+  reason?: string;
+}
 
 // Import types
 export interface ImportResult {

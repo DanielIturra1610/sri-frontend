@@ -16,10 +16,12 @@ import {
   Settings,
   Users,
   X,
+  AlertTriangle,
 } from 'lucide-react';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';
 import { cn } from '@/lib/utils/cn';
+import { AlertBadge } from '@/components/alerts';
 import type { UserRole } from '@/types';
 
 interface NavItem {
@@ -59,21 +61,21 @@ const navigation: NavItem[] = [
   },
   {
     name: 'Inventario',
-    href: '/inventory',
+    href: '/stock',
     icon: Warehouse,
     permission: PERMISSIONS.INVENTORY_VIEW,
     children: [
       {
         name: 'Stock',
-        href: '/inventory/stock',
+        href: '/stock',
         icon: Warehouse,
         permission: PERMISSIONS.INVENTORY_VIEW,
       },
       {
-        name: 'Ubicaciones',
-        href: '/locations',
-        icon: MapPin,
-        permission: PERMISSIONS.LOCATIONS_VIEW,
+        name: 'Alertas',
+        href: '/alerts',
+        icon: AlertTriangle,
+        permission: PERMISSIONS.INVENTORY_VIEW,
       },
       {
         name: 'Transferencias',
@@ -82,10 +84,10 @@ const navigation: NavItem[] = [
         permission: PERMISSIONS.TRANSFERS_VIEW,
       },
       {
-        name: 'Transacciones',
-        href: '/inventory/transactions',
-        icon: FileText,
-        permission: PERMISSIONS.TRANSACTIONS_VIEW,
+        name: 'Ubicaciones',
+        href: '/locations',
+        icon: MapPin,
+        permission: PERMISSIONS.LOCATIONS_VIEW,
       },
     ],
   },
@@ -211,14 +213,18 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                 <Link
                                   href={child.href}
                                   className={cn(
-                                    'flex items-center px-3 py-2 text-sm rounded-lg transition-colors',
+                                    'flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors',
                                     isActive(child.href)
                                       ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                                       : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                                   )}
                                 >
-                                  <child.icon className="w-4 h-4 mr-3" />
-                                  {child.name}
+                                  <div className="flex items-center">
+                                    <child.icon className="w-4 h-4 mr-3" />
+                                    {child.name}
+                                  </div>
+                                  {/* Alert Badge for Alerts menu item */}
+                                  {child.href === '/alerts' && <AlertBadge />}
                                 </Link>
                               </li>
                             </Can>
