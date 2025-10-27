@@ -108,6 +108,14 @@ const navigation: NavItem[] = [
     href: '/settings',
     icon: Settings,
     permission: PERMISSIONS.SETTINGS_VIEW,
+    children: [
+      {
+        name: 'Umbrales de Stock',
+        href: '/settings/thresholds',
+        icon: Settings,
+        permission: PERMISSIONS.SETTINGS_VIEW,
+      },
+    ],
   },
   {
     name: 'Usuarios',
