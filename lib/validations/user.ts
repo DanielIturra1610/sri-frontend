@@ -82,3 +82,47 @@ export const roleDescriptions: Record<UserRole, string> = {
   AUDITOR: 'Solo lectura de productos, inventario y reportes',
   OPERATOR: 'Gestión básica de inventario y transacciones',
 };
+
+// Profile schemas
+export const profileSchema = z.object({
+  full_name: z
+    .string()
+    .min(1, 'El nombre completo es requerido')
+    .min(3, 'El nombre debe tener al menos 3 caracteres'),
+  email: z
+    .string()
+    .min(1, 'El email es requerido')
+    .email('Email inválido'),
+  rut: z
+    .string()
+    .regex(/^\d{7,8}-[\dkK]$/, 'RUT inválido (formato: 12345678-9)')
+    .optional()
+    .or(z.literal('')),
+  phone: z
+    .string()
+    .optional()
+    .or(z.literal('')),
+});
+
+export const changePasswordSchema = z.object({
+  current_password: z
+    .string()
+    .min(1, 'La contraseña actual es requerida'),
+  new_password: z
+    .string()
+    .min(1, 'La nueva contraseña es requerida')
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'La contraseña debe contener al menos una mayúscula, una minúscula y un número'
+    ),
+  confirm_password: z
+    .string()
+    .min(1, 'Confirme la nueva contraseña'),
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: 'Las contraseñas no coinciden',
+  path: ['confirm_password'],
+});
+
+export type ProfileFormData = z.infer<typeof profileSchema>;
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;

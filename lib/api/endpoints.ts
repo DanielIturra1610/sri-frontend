@@ -21,6 +21,9 @@ export const API_ENDPOINTS = {
     GET: (id: string) => `/users/${id}`,
     UPDATE: (id: string) => `/users/${id}`,
     DELETE: (id: string) => `/users/${id}`,
+    PROFILE: '/users/profile',
+    UPDATE_PROFILE: '/users/profile',
+    CHANGE_PASSWORD: '/users/profile/password',
   },
 
   // Products

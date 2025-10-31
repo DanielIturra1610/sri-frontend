@@ -37,6 +37,18 @@ export interface UserFilters {
   sort_order?: 'asc' | 'desc';
 }
 
+export interface UpdateProfileDTO {
+  full_name?: string;
+  email?: string;
+  rut?: string;
+  phone?: string;
+}
+
+export interface ChangePasswordDTO {
+  current_password: string;
+  new_password: string;
+}
+
 export class UserService {
   /**
    * Get all users with optional filters
@@ -136,6 +148,50 @@ export class UserService {
   static async deactivateUser(id: string): Promise<User> {
     try {
       return await this.updateUser(id, { is_active: false });
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Get current user profile
+   */
+  static async getCurrentProfile(): Promise<User> {
+    try {
+      const response = await apiClient.get<ApiResponse<User>>(
+        API_ENDPOINTS.USERS.PROFILE
+      );
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Update current user profile
+   */
+  static async updateProfile(data: UpdateProfileDTO): Promise<User> {
+    try {
+      const response = await apiClient.put<ApiResponse<User>>(
+        API_ENDPOINTS.USERS.UPDATE_PROFILE,
+        data
+      );
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Change current user password
+   */
+  static async changePassword(data: ChangePasswordDTO): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.put<ApiResponse<{ message: string }>>(
+        API_ENDPOINTS.USERS.CHANGE_PASSWORD,
+        data
+      );
+      return response.data.data!;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
