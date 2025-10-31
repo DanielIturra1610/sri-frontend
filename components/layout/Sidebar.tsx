@@ -84,6 +84,12 @@ const navigation: NavItem[] = [
         permission: PERMISSIONS.TRANSFERS_VIEW,
       },
       {
+        name: 'Transacciones',
+        href: '/inventory/transactions',
+        icon: FileText,
+        permission: PERMISSIONS.INVENTORY_VIEW,
+      },
+      {
         name: 'Ubicaciones',
         href: '/locations',
         icon: MapPin,

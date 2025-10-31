@@ -46,3 +46,6 @@ export type { SkeletonProps } from './Skeleton';
 // Data display components
 export { DataTable } from './DataTable';
 export type { DataTableProps } from './DataTable';
+
+export { Progress } from './Progress';
+export type { ProgressProps } from './Progress';
