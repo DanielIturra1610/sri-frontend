@@ -103,4 +103,11 @@ export const API_ENDPOINTS = {
     DELETE: (id: string) => `/notifications/${id}`,
     UNREAD_COUNT: '/notifications/unread-count',
   },
+
+  // Audit Logs
+  AUDIT_LOGS: {
+    LIST: '/audit-logs',
+    GET: (id: string) => `/audit-logs/${id}`,
+    EXPORT: '/audit-logs/export', // ?format=csv|xlsx&date_from=&date_to=
+  },
 } as const;

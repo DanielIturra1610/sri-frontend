@@ -304,3 +304,60 @@ export interface CreateNotificationDTO {
   reference_type?: string;
   reference_id?: string;
 }
+
+// Audit log types
+export interface AuditLog {
+  id: string;
+  tenant_id: string;
+  user_id: string;
+  user_name: string;
+  user_email: string;
+  action: AuditAction;
+  entity_type: AuditEntityType;
+  entity_id?: string;
+  entity_name?: string;
+  description: string;
+  metadata?: Record<string, any>;
+  ip_address?: string;
+  user_agent?: string;
+  created_at: string;
+}
+
+export type AuditAction =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'LOGIN'
+  | 'LOGOUT'
+  | 'FAILED_LOGIN'
+  | 'PASSWORD_CHANGE'
+  | 'STOCK_ADJUSTMENT'
+  | 'TRANSFER_CREATE'
+  | 'TRANSFER_COMPLETE'
+  | 'TRANSFER_CANCEL'
+  | 'IMPORT'
+  | 'EXPORT'
+  | 'VIEW';
+
+export type AuditEntityType =
+  | 'USER'
+  | 'PRODUCT'
+  | 'CATEGORY'
+  | 'LOCATION'
+  | 'STOCK'
+  | 'TRANSFER'
+  | 'TRANSACTION'
+  | 'NOTIFICATION'
+  | 'SETTINGS'
+  | 'AUTH'
+  | 'SYSTEM';
+
+export interface AuditLogFilters extends PaginationParams {
+  user_id?: string;
+  action?: AuditAction;
+  entity_type?: AuditEntityType;
+  entity_id?: string;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
