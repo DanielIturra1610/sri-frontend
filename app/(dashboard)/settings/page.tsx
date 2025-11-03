@@ -53,9 +53,9 @@ export default function SettingsPage() {
       title: 'Respaldo y Restauración',
       description: 'Configura respaldos automáticos y restaura datos anteriores',
       icon: <Database className="h-8 w-8" />,
-      path: '/settings/backup',
+      path: '/backups',
       color: 'text-green-600',
-      available: false,
+      available: true,
     },
   ];
 

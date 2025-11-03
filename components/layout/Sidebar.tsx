@@ -18,6 +18,7 @@ import {
   X,
   AlertTriangle,
   Shield,
+  Database,
 } from 'lucide-react';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';
@@ -135,6 +136,12 @@ const navigation: NavItem[] = [
     href: '/audit-logs',
     icon: Shield,
     role: ['OWNER', 'ADMIN', 'AUDITOR'],
+  },
+  {
+    name: 'Respaldos',
+    href: '/backups',
+    icon: Database,
+    role: ['OWNER', 'ADMIN'],
   },
 ];
 

@@ -442,3 +442,70 @@ export interface UpdateInventorySettingsDTO {
   allow_negative_stock?: boolean;
   require_approval_for_adjustments?: boolean;
 }
+
+// Backup types
+export interface Backup {
+  id: string;
+  tenant_id: string;
+  name: string;
+  description?: string;
+  backup_type: BackupType;
+  format: BackupFormat;
+  size_bytes: number;
+  file_path: string;
+  status: BackupStatus;
+  created_by: string;
+  created_by_name: string;
+  created_at: string;
+  completed_at?: string;
+  error_message?: string;
+  includes_tables?: string[];
+}
+
+export type BackupType = 'FULL' | 'PARTIAL' | 'MANUAL' | 'AUTOMATIC';
+export type BackupFormat = 'SQL' | 'JSON' | 'XLSX';
+export type BackupStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+
+export interface BackupFilters extends PaginationParams {
+  backup_type?: BackupType;
+  status?: BackupStatus;
+  date_from?: string;
+  date_to?: string;
+}
+
+export interface CreateBackupDTO {
+  name: string;
+  description?: string;
+  backup_type: BackupType;
+  format: BackupFormat;
+  includes_tables?: string[];
+}
+
+export interface RestoreBackupDTO {
+  backup_id: string;
+  restore_tables?: string[];
+  confirm: boolean;
+}
+
+export interface BackupConfig {
+  id: string;
+  tenant_id: string;
+  auto_backup_enabled: boolean;
+  auto_backup_frequency: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  auto_backup_time: string; // HH:mm format
+  auto_backup_day?: number; // 1-31 for monthly, 0-6 for weekly (0=Sunday)
+  retention_days: number;
+  backup_format: BackupFormat;
+  notification_email?: string;
+  updated_at: string;
+}
+
+export interface UpdateBackupConfigDTO {
+  auto_backup_enabled?: boolean;
+  auto_backup_frequency?: 'DAILY' | 'WEEKLY' | 'MONTHLY';
+  auto_backup_time?: string;
+  auto_backup_day?: number;
+  retention_days?: number;
+  backup_format?: BackupFormat;
+  notification_email?: string;
+}

@@ -121,4 +121,16 @@ export const API_ENDPOINTS = {
     UPDATE_INVENTORY: '/settings/inventory',
     UPLOAD_LOGO: '/settings/logo',
   },
+
+  // Backups
+  BACKUPS: {
+    LIST: '/backups',
+    CREATE: '/backups',
+    GET: (id: string) => `/backups/${id}`,
+    DELETE: (id: string) => `/backups/${id}`,
+    DOWNLOAD: (id: string) => `/backups/${id}/download`,
+    RESTORE: '/backups/restore',
+    CONFIG: '/backups/config',
+    UPDATE_CONFIG: '/backups/config',
+  },
 } as const;
