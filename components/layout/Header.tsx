@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Menu, Bell, User, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { Menu, User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { getRoleDisplayName } from '@/lib/constants/permissions';
 import { cn } from '@/lib/utils/cn';
+import { NotificationDropdown } from '@/components/notifications';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -42,14 +43,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* Right side - Notifications & User menu */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
-          <button
-            className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-            aria-label="Notificaciones"
-          >
-            <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-            {/* Notification badge */}
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-          </button>
+          <NotificationDropdown />
 
           {/* User menu */}
           <div className="relative">

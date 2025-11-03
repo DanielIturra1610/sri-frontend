@@ -271,3 +271,36 @@ export interface TransferFilters extends PaginationParams {
   date_from?: string;
   date_to?: string;
 }
+
+// Notification types
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  reference_type?: string;
+  reference_id?: string;
+  is_read: boolean;
+  created_at: string;
+  read_at?: string;
+}
+
+export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'stock_alert' | 'transfer' | 'system';
+
+export interface NotificationFilters extends PaginationParams {
+  type?: NotificationType;
+  is_read?: boolean;
+  date_from?: string;
+  date_to?: string;
+}
+
+export interface CreateNotificationDTO {
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  reference_type?: string;
+  reference_id?: string;
+}
