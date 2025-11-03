@@ -110,4 +110,15 @@ export const API_ENDPOINTS = {
     GET: (id: string) => `/audit-logs/${id}`,
     EXPORT: '/audit-logs/export', // ?format=csv|xlsx&date_from=&date_to=
   },
+
+  // System Settings
+  SETTINGS: {
+    GET: '/settings',
+    UPDATE_COMPANY: '/settings/company',
+    UPDATE_GENERAL: '/settings/general',
+    UPDATE_NOTIFICATIONS: '/settings/notifications',
+    UPDATE_SECURITY: '/settings/security',
+    UPDATE_INVENTORY: '/settings/inventory',
+    UPLOAD_LOGO: '/settings/logo',
+  },
 } as const;

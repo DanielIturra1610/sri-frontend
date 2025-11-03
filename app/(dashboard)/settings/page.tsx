@@ -20,6 +20,16 @@ export default function SettingsPage() {
 
   const settings: SettingCard[] = [
     {
+      id: 'system',
+      title: 'Configuración del Sistema',
+      description:
+        'Gestiona configuraciones generales, empresa, seguridad, notificaciones e inventario',
+      icon: <Settings className="h-8 w-8" />,
+      path: '/settings/system',
+      color: 'text-purple-600',
+      available: true,
+    },
+    {
       id: 'thresholds',
       title: 'Umbrales de Stock',
       description:
@@ -28,16 +38,6 @@ export default function SettingsPage() {
       path: '/settings/thresholds',
       color: 'text-blue-600',
       available: true,
-    },
-    {
-      id: 'notifications',
-      title: 'Notificaciones',
-      description:
-        'Gestiona alertas por email, push y configuración de frecuencia',
-      icon: <Bell className="h-8 w-8" />,
-      path: '/settings/notifications',
-      color: 'text-yellow-600',
-      available: false,
     },
     {
       id: 'permissions',

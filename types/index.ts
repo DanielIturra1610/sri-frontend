@@ -361,3 +361,84 @@ export interface AuditLogFilters extends PaginationParams {
   date_to?: string;
   search?: string;
 }
+
+// System Settings types
+export interface SystemSettings {
+  id: string;
+  tenant_id: string;
+
+  // Company/Tenant settings
+  company_name: string;
+  company_rut: string;
+  company_email?: string;
+  company_phone?: string;
+  company_address?: string;
+  company_city?: string;
+  company_country?: string;
+  company_logo_url?: string;
+
+  // General settings
+  timezone: string;
+  date_format: string;
+  currency: string;
+  language: string;
+
+  // Notification settings
+  email_notifications_enabled: boolean;
+  low_stock_notifications: boolean;
+  transfer_notifications: boolean;
+  system_notifications: boolean;
+
+  // Security settings
+  session_timeout_minutes: number;
+  password_expiry_days: number;
+  require_strong_password: boolean;
+  enable_two_factor: boolean;
+
+  // Inventory settings
+  auto_calculate_reorder_point: boolean;
+  default_stock_unit: string;
+  allow_negative_stock: boolean;
+  require_approval_for_adjustments: boolean;
+
+  updated_at: string;
+  updated_by?: string;
+}
+
+export interface UpdateCompanySettingsDTO {
+  company_name?: string;
+  company_rut?: string;
+  company_email?: string;
+  company_phone?: string;
+  company_address?: string;
+  company_city?: string;
+  company_country?: string;
+}
+
+export interface UpdateGeneralSettingsDTO {
+  timezone?: string;
+  date_format?: string;
+  currency?: string;
+  language?: string;
+}
+
+export interface UpdateNotificationSettingsDTO {
+  email_notifications_enabled?: boolean;
+  low_stock_notifications?: boolean;
+  transfer_notifications?: boolean;
+  system_notifications?: boolean;
+}
+
+export interface UpdateSecuritySettingsDTO {
+  session_timeout_minutes?: number;
+  password_expiry_days?: number;
+  require_strong_password?: boolean;
+  enable_two_factor?: boolean;
+}
+
+export interface UpdateInventorySettingsDTO {
+  auto_calculate_reorder_point?: boolean;
+  default_stock_unit?: string;
+  allow_negative_stock?: boolean;
+  require_approval_for_adjustments?: boolean;
+}
