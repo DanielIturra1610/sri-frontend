@@ -54,9 +54,9 @@ export default function BackupsPage() {
         sort_order: 'desc',
       });
 
-      setBackups(response.items);
-      setTotalItems(response.total);
-      setTotalPages(response.total_pages);
+      setBackups(response.data.items);
+      setTotalItems(response.data.total);
+      setTotalPages(response.data.total_pages);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar respaldos');
       console.error('Error loading backups:', error);
@@ -321,10 +321,10 @@ export default function BackupsPage() {
                               {statusConfig.label}
                             </div>
                           </Badge>
-                          <Badge variant="secondary" size="sm">
+                          <Badge variant="default" size="sm">
                             {getTypeLabel(backup.backup_type)}
                           </Badge>
-                          <Badge variant="secondary" size="sm">
+                          <Badge variant="default" size="sm">
                             {backup.format}
                           </Badge>
                         </div>

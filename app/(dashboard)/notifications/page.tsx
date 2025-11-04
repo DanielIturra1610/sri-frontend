@@ -36,8 +36,8 @@ export default function NotificationsPage() {
         NotificationService.getUnreadCount(),
       ]);
 
-      setNotifications(response.items);
-      setTotalItems(response.total);
+      setNotifications(response.data.items);
+      setTotalItems(response.data.total);
       setUnreadCount(count);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar notificaciones');

@@ -69,8 +69,8 @@ export class UserService {
         ? `${API_ENDPOINTS.USERS.LIST}?${params.toString()}`
         : API_ENDPOINTS.USERS.LIST;
 
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<User>>>(url);
-      return response.data.data || { items: [], total: 0, page: 1, page_size: 10, total_pages: 0 };
+      const response = await apiClient.get<PaginatedResponse<User>>(url);
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

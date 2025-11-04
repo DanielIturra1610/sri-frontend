@@ -7,7 +7,7 @@ import { Search, Filter, Plus, MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-
 import { ProductService } from '@/services/productService';
 import { CategoryService } from '@/services/categoryService';
 import { DataTable } from '@/components/ui/DataTable';
-import { Button, Input, Select, Badge } from '@/components/ui';
+import { Button, Input, Select, Badge, Modal, ModalHeader, ModalBody, ModalFooter } from '@/components/ui';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';
 import type { Product, Category } from '@/types';
@@ -25,6 +25,9 @@ export default function ProductsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load products
   const loadProducts = async () => {
@@ -58,6 +61,25 @@ export default function ProductsPage() {
       setCategories(data);
     } catch (error) {
       console.error('Error loading categories:', error);
+    }
+  };
+
+  // Handle delete product
+  const handleDeleteProduct = async () => {
+    if (!productToDelete) return;
+
+    try {
+      setIsDeleting(true);
+      await ProductService.deleteProduct(productToDelete.id);
+      toast.success('Producto eliminado correctamente');
+      setShowDeleteModal(false);
+      setProductToDelete(null);
+      loadProducts(); // Reload products list
+    } catch (error) {
+      toast.error('Error al eliminar producto');
+      console.error('Error deleting product:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -165,7 +187,8 @@ export default function ProductsPage() {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                // TODO: Implement delete
+                setProductToDelete(row.original);
+                setShowDeleteModal(true);
               }}
             >
               <Trash2 className="h-4 w-4 text-red-600" />
@@ -322,6 +345,64 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setProductToDelete(null);
+        }}
+      >
+        <ModalHeader>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Eliminar Producto
+          </h3>
+        </ModalHeader>
+        <ModalBody>
+          <p className="text-gray-600 dark:text-gray-400">
+            ¿Estás seguro de que deseas eliminar el producto{' '}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {productToDelete?.name}
+            </span>
+            ? Esta acción no se puede deshacer.
+          </p>
+          {productToDelete && (
+            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                <p>
+                  <span className="font-medium">SKU:</span> {productToDelete.sku}
+                </p>
+                <p>
+                  <span className="font-medium">Categoría:</span>{' '}
+                  {productToDelete.category_name || 'Sin categoría'}
+                </p>
+              </div>
+            </div>
+          )}
+        </ModalBody>
+        <ModalFooter>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setProductToDelete(null);
+              }}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteProduct}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+            </Button>
+          </div>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }

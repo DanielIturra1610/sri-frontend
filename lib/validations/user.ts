@@ -47,6 +47,7 @@ export const createUserSchema = userSchema.extend({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
       'La contraseña debe contener al menos una mayúscula, una minúscula y un número'
     ),
+  is_active: z.boolean().optional(),
 });
 
 export const updateUserSchema = userSchema.extend({
@@ -59,6 +60,7 @@ export const updateUserSchema = userSchema.extend({
     )
     .optional()
     .or(z.literal('')),
+  is_active: z.boolean().optional(),
 });
 
 export type UserFormData = z.infer<typeof userSchema>;

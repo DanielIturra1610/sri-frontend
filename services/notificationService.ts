@@ -28,8 +28,8 @@ export class NotificationService {
         ? `${API_ENDPOINTS.NOTIFICATIONS.LIST}?${params.toString()}`
         : API_ENDPOINTS.NOTIFICATIONS.LIST;
 
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<Notification>>>(url);
-      return response.data.data || { items: [], total: 0, page: 1, page_size: 10, total_pages: 0 };
+      const response = await apiClient.get<PaginatedResponse<Notification>>(url);
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -114,7 +114,7 @@ export class NotificationService {
         sort_by: 'created_at',
         sort_order: 'desc',
       });
-      return response.items;
+      return response.data.items;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

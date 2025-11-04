@@ -40,9 +40,9 @@ export default function UsersPage() {
         sort_order: 'desc',
       });
 
-      setUsers(response.items);
-      setTotalItems(response.total);
-      setTotalPages(response.total_pages);
+      setUsers(response.data.items);
+      setTotalItems(response.data.total);
+      setTotalPages(response.data.total_pages);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar usuarios');
       console.error('Error loading users:', error);
@@ -126,12 +126,12 @@ export default function UsersPage() {
       accessorKey: 'role',
       header: 'Rol',
       cell: ({ row }) => {
-        const roleColors: Record<UserRole, 'primary' | 'success' | 'warning' | 'info' | 'secondary'> = {
-          OWNER: 'primary',
+        const roleColors: Record<UserRole, 'default' | 'success' | 'warning' | 'info' | 'danger'> = {
+          OWNER: 'info',
           ADMIN: 'success',
           MANAGER: 'warning',
           AUDITOR: 'info',
-          OPERATOR: 'secondary',
+          OPERATOR: 'default',
         };
         return (
           <Badge variant={roleColors[row.original.role]} size="sm">
@@ -344,29 +344,80 @@ export default function UsersPage() {
       </Card>
 
       {/* Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Usuarios ({totalItems})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={users}
-            isLoading={isLoading}
-            emptyMessage="No se encontraron usuarios"
-            pagination={{
-              page,
-              pageSize,
-              totalItems,
-              totalPages,
-              onPageChange: setPage,
-              onPageSizeChange: setPageSize,
-            }}
-          />
-        </CardContent>
-      </Card>
+      <DataTable
+        columns={columns}
+        data={users}
+        isLoading={isLoading}
+        emptyMessage="No se encontraron usuarios"
+      />
+
+      {/* Pagination */}
+      {!isLoading && totalPages > 1 && (
+        <div className="flex items-center justify-between bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 px-6 py-4">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Mostrando {((page - 1) * pageSize) + 1} a {Math.min(page * pageSize, totalItems)} de {totalItems} usuarios
+            </span>
+            <Select
+              value={pageSize.toString()}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setPage(1);
+              }}
+              className="w-32"
+            >
+              <option value="10">10 / página</option>
+              <option value="25">25 / página</option>
+              <option value="50">50 / página</option>
+              <option value="100">100 / página</option>
+            </Select>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              Anterior
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (page <= 3) {
+                  pageNum = i + 1;
+                } else if (page >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = page - 2 + i;
+                }
+
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={page === pageNum ? 'primary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setPage(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Siguiente
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

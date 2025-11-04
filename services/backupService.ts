@@ -35,8 +35,8 @@ export class BackupService {
         ? `${API_ENDPOINTS.BACKUPS.LIST}?${params.toString()}`
         : API_ENDPOINTS.BACKUPS.LIST;
 
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<Backup>>>(url);
-      return response.data.data || { items: [], total: 0, page: 1, page_size: 20, total_pages: 0 };
+      const response = await apiClient.get<PaginatedResponse<Backup>>(url);
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

@@ -170,7 +170,7 @@ export function NotificationDropdown() {
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-gray-900 dark:text-white">Notificaciones</h3>
               {unreadCount > 0 && (
-                <Badge variant="primary" size="sm">
+                <Badge variant="info" size="sm">
                   {unreadCount}
                 </Badge>
               )}

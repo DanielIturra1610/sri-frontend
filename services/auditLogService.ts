@@ -31,8 +31,8 @@ export class AuditLogService {
         ? `${API_ENDPOINTS.AUDIT_LOGS.LIST}?${params.toString()}`
         : API_ENDPOINTS.AUDIT_LOGS.LIST;
 
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<AuditLog>>>(url);
-      return response.data.data || { items: [], total: 0, page: 1, page_size: 20, total_pages: 0 };
+      const response = await apiClient.get<PaginatedResponse<AuditLog>>(url);
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

@@ -136,7 +136,7 @@ export default function CreateUserPage() {
               placeholder="••••••••"
               error={errors.password?.message}
               {...register('password')}
-              helpText="Mínimo 8 caracteres, debe incluir mayúscula, minúscula y número"
+              helperText="Mínimo 8 caracteres, debe incluir mayúscula, minúscula y número"
             />
 
             <Alert variant="warning" title="Nota de Seguridad">
@@ -181,12 +181,16 @@ export default function CreateUserPage() {
               </div>
             )}
 
-            <Checkbox
-              id="is_active"
-              label="Usuario activo"
-              {...register('is_active')}
-              helpText="Los usuarios inactivos no podrán iniciar sesión en el sistema"
-            />
+            <div className="space-y-2">
+              <Checkbox
+                id="is_active"
+                label="Usuario activo"
+                {...register('is_active')}
+              />
+              <p className="text-sm text-gray-600 dark:text-gray-400 ml-7">
+                Los usuarios inactivos no podrán iniciar sesión en el sistema
+              </p>
+            </div>
           </CardContent>
         </Card>
 

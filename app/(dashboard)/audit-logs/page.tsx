@@ -57,9 +57,9 @@ export default function AuditLogsPage() {
         sort_order: 'desc',
       });
 
-      setLogs(response.items);
-      setTotalItems(response.total);
-      setTotalPages(response.total_pages);
+      setLogs(response.data.items);
+      setTotalItems(response.data.total);
+      setTotalPages(response.data.total_pages);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar logs de auditoría');
       console.error('Error loading audit logs:', error);
@@ -72,7 +72,7 @@ export default function AuditLogsPage() {
   const loadUsers = async () => {
     try {
       const response = await UserService.getUsers();
-      setUsers(response.items);
+      setUsers(response.data.items);
     } catch (error) {
       console.error('Error loading users:', error);
     }

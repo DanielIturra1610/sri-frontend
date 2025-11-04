@@ -179,7 +179,7 @@ export default function EditUserPage() {
               placeholder="Dejar en blanco para mantener la actual"
               error={errors.password?.message}
               {...register('password')}
-              helpText="Solo completa este campo si deseas cambiar la contraseña"
+              helperText="Solo completa este campo si deseas cambiar la contraseña"
             />
 
             <Alert variant="info" title="Cambio de Contraseña">
@@ -223,12 +223,16 @@ export default function EditUserPage() {
               </div>
             )}
 
-            <Checkbox
-              id="is_active"
-              label="Usuario activo"
-              {...register('is_active')}
-              helpText="Los usuarios inactivos no podrán iniciar sesión en el sistema"
-            />
+            <div className="space-y-2">
+              <Checkbox
+                id="is_active"
+                label="Usuario activo"
+                {...register('is_active')}
+              />
+              <p className="text-sm text-gray-600 dark:text-gray-400 ml-7">
+                Los usuarios inactivos no podrán iniciar sesión en el sistema
+              </p>
+            </div>
           </CardContent>
         </Card>
 

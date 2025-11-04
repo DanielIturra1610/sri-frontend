@@ -160,7 +160,7 @@ export default function ProfilePage() {
               </h2>
               <p className="text-gray-600 dark:text-gray-400">{authUser?.email}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant="primary" size="sm">
+                <Badge variant="info" size="sm">
                   {authUser?.role ? getRoleDisplayName(authUser.role) : ''}
                 </Badge>
                 <Badge variant={authUser?.is_active ? 'success' : 'danger'} size="sm">
