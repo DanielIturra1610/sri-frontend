@@ -42,11 +42,11 @@ export default function SettingsPage() {
     {
       id: 'permissions',
       title: 'Permisos y Roles',
-      description: 'Administra roles de usuario y permisos de acceso al sistema',
+      description: 'Visualiza la matriz de permisos y roles del sistema',
       icon: <Shield className="h-8 w-8" />,
       path: '/settings/permissions',
       color: 'text-red-600',
-      available: false,
+      available: true,
     },
     {
       id: 'backup',
