@@ -1,7 +1,8 @@
-import React from 'react';
-import { cn } from '@/lib/utils/cn';
+import * as React from "react";
+import { cn } from "@/lib/utils/cn";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -13,6 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   (
     {
       className,
+      type,
       label,
       error,
       helperText,
@@ -23,58 +25,58 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = React.useId();
+    const inputId = id || `input-${generatedId}`;
 
     return (
-      <div className="w-full">
+      <div className="w-full space-y-2">
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
               {leftIcon}
             </div>
           )}
           <input
-            ref={ref}
+            type={type}
             id={inputId}
             className={cn(
-              'block w-full rounded-lg border px-3 py-2 text-gray-900 placeholder-gray-400',
-              'focus:outline-none focus:ring-2 focus:ring-offset-0',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              'dark:bg-gray-800 dark:text-white dark:placeholder-gray-500',
-              error
-                ? 'border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-600'
-                : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600',
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
+              "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors",
+              "file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
+              "placeholder:text-muted-foreground",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              error && "border-destructive focus-visible:ring-destructive",
+              leftIcon && "pl-10",
+              rightIcon && "pr-10",
               className
             )}
+            ref={ref}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
               {rightIcon}
             </div>
           )}
         </div>
         {error && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-sm font-medium text-destructive">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+          <p className="text-sm text-muted-foreground">{helperText}</p>
         )}
       </div>
     );
   }
 );
-
-Input.displayName = 'Input';
+Input.displayName = "Input";
 
 export { Input };

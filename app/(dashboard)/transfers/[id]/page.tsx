@@ -411,12 +411,12 @@ export default function TransferDetailPage() {
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                   {transfer.status === 'pending' && (
                     <p>
-                      Esta transferencia está pendiente de inicio. Puede marcarla como "En Tránsito" cuando se haya despachado el producto.
+                      Esta transferencia está pendiente de inicio. Puede marcarla como &quot;En Tránsito&quot; cuando se haya despachado el producto.
                     </p>
                   )}
                   {transfer.status === 'in_transit' && (
                     <p>
-                      Esta transferencia está en tránsito. Puede marcarla como "Completada" cuando el producto llegue a la ubicación de destino.
+                      Esta transferencia está en tránsito. Puede marcarla como &quot;Completada&quot; cuando el producto llegue a la ubicación de destino.
                     </p>
                   )}
                 </div>

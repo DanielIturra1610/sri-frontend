@@ -1,63 +1,99 @@
-import React from 'react';
-import { cn } from '@/lib/utils/cn';
+"use client";
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+import * as React from "react";
+import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+
+interface CheckboxProps
+  extends Omit<React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>, 'onChange'> {
   label?: string;
   error?: string;
+  // Support for legacy onChange API
+  onChange?: (e: { target: { checked: boolean } }) => void;
 }
 
-const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  (
-    {
-      className,
-      label,
-      error,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const checkboxId = id || `checkbox-${Math.random().toString(36).substr(2, 9)}`;
+const Checkbox = React.forwardRef<
+  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  CheckboxProps
+>(({ className, label, error, id, onChange, onCheckedChange, ...props }, ref) => {
+  const generatedId = React.useId();
+  const checkboxId = id || `checkbox-${generatedId}`;
 
+  // Handle both onChange (legacy) and onCheckedChange (Radix) APIs
+  const handleCheckedChange = (checked: boolean | 'indeterminate') => {
+    if (onCheckedChange) {
+      onCheckedChange(checked);
+    }
+    if (onChange && checked !== 'indeterminate') {
+      onChange({ target: { checked } });
+    }
+  };
+
+  if (label) {
     return (
-      <div className="flex items-start">
-        <div className="flex items-center h-5">
-          <input
-            ref={ref}
-            id={checkboxId}
-            type="checkbox"
+      <div className="flex items-start space-x-3">
+        <CheckboxPrimitive.Root
+          ref={ref}
+          id={checkboxId}
+          onCheckedChange={handleCheckedChange}
+          className={cn(
+            "peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            "data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+            error && "border-destructive",
+            className
+          )}
+          {...props}
+        >
+          <CheckboxPrimitive.Indicator
+            className={cn("flex items-center justify-center text-current")}
+          >
+            <Check className="h-3.5 w-3.5" strokeWidth={3} />
+          </CheckboxPrimitive.Indicator>
+        </CheckboxPrimitive.Root>
+        <div className="grid gap-1.5 leading-none">
+          <label
+            htmlFor={checkboxId}
             className={cn(
-              'w-4 h-4 text-blue-600 bg-white border-gray-300 rounded',
-              'focus:ring-2 focus:ring-blue-500 focus:ring-offset-0',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              'dark:bg-gray-800 dark:border-gray-600 dark:focus:ring-blue-600',
-              error && 'border-red-500 dark:border-red-600',
-              className
+              "text-sm font-medium leading-none text-foreground",
+              "peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             )}
-            {...props}
-          />
+          >
+            {label}
+          </label>
+          {error && (
+            <p className="text-sm font-medium text-destructive">{error}</p>
+          )}
         </div>
-        {label && (
-          <div className="ml-3 text-sm">
-            <label
-              htmlFor={checkboxId}
-              className={cn(
-                'font-medium text-gray-700 dark:text-gray-300',
-                props.disabled && 'opacity-50 cursor-not-allowed'
-              )}
-            >
-              {label}
-            </label>
-            {error && (
-              <p className="text-red-600 dark:text-red-400">{error}</p>
-            )}
-          </div>
-        )}
       </div>
     );
   }
-);
 
-Checkbox.displayName = 'Checkbox';
+  return (
+    <CheckboxPrimitive.Root
+      ref={ref}
+      id={checkboxId}
+      onCheckedChange={handleCheckedChange}
+      className={cn(
+        "peer h-4 w-4 shrink-0 rounded-sm border border-primary shadow transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        "data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+        error && "border-destructive",
+        className
+      )}
+      {...props}
+    >
+      <CheckboxPrimitive.Indicator
+        className={cn("flex items-center justify-center text-current")}
+      >
+        <Check className="h-3.5 w-3.5" strokeWidth={3} />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  );
+});
+Checkbox.displayName = CheckboxPrimitive.Root.displayName;
 
 export { Checkbox };

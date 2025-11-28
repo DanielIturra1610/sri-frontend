@@ -1,62 +1,51 @@
-import React from 'react';
-import { cn } from '@/lib/utils/cn';
+import * as React from "react";
+import { cn } from "@/lib/utils/cn";
 
-export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps
+  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  (
-    {
-      className,
-      label,
-      error,
-      helperText,
-      id,
-      ...props
-    },
-    ref
-  ) => {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  ({ className, label, error, helperText, id, ...props }, ref) => {
+    const generatedId = React.useId();
+    const textareaId = id || `textarea-${generatedId}`;
 
     return (
-      <div className="w-full">
+      <div className="w-full space-y-2">
         {label && (
           <label
             htmlFor={textareaId}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            className="text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             {label}
           </label>
         )}
         <textarea
-          ref={ref}
           id={textareaId}
           className={cn(
-            'block w-full rounded-lg border px-3 py-2 text-gray-900 placeholder-gray-400',
-            'focus:outline-none focus:ring-2 focus:ring-offset-0',
-            'disabled:opacity-50 disabled:cursor-not-allowed',
-            'dark:bg-gray-800 dark:text-white dark:placeholder-gray-500',
-            error
-              ? 'border-red-300 focus:border-red-500 focus:ring-red-500 dark:border-red-600'
-              : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600',
+            "flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors",
+            "placeholder:text-muted-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive focus-visible:ring-destructive",
             className
           )}
+          ref={ref}
           {...props}
         />
         {error && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-sm font-medium text-destructive">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
+          <p className="text-sm text-muted-foreground">{helperText}</p>
         )}
       </div>
     );
   }
 );
-
-Textarea.displayName = 'Textarea';
+Textarea.displayName = "Textarea";
 
 export { Textarea };
