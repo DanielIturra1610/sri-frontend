@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Define public routes that don't require authentication
 const publicRoutes = [
+  '/',
   '/login',
   '/register',
   '/forgot-password',
@@ -92,8 +93,12 @@ export function middleware(request: NextRequest) {
 
   // Allow public routes
   if (isPublicRoute(pathname)) {
-    // If already authenticated and trying to access auth pages, redirect to dashboard
-    if (isAuthenticated && pathname !== '/reset-password') {
+    // If authenticated and on landing page, redirect to dashboard
+    if (isAuthenticated && pathname === '/') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    // If authenticated and trying to access auth pages (login/register), redirect to dashboard
+    if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     return NextResponse.next();
