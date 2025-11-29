@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, Filter, Check, CheckCheck, Trash2, AlertCircle, Info, CheckCircle, XCircle, Package, ArrowRightLeft, Clock } from 'lucide-react';
 import { NotificationService } from '@/services/notificationService';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select, Badge } from '@/components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, NativeSelect as Select, Badge } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 import type { Notification, NotificationType } from '@/types';
 import toast from 'react-hot-toast';

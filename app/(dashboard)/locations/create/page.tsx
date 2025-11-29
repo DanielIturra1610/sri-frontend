@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Save } from 'lucide-react';
 import { LocationService } from '@/services/locationService';
 import { locationSchema, type LocationFormData, locationTypeLabels } from '@/lib/validations/location';
-import { Button, Input, Textarea, Select, Checkbox, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { Button, Input, Textarea, NativeSelect as Select, Checkbox, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import toast from 'react-hot-toast';
 
 export default function CreateLocationPage() {

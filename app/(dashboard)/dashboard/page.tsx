@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { DashboardService } from '@/services/dashboardService';
 import { StockService } from '@/services/stockService';
-import { Skeleton, Select } from '@/components/ui';
+import { Skeleton, NativeSelect as Select } from '@/components/ui';
 import {
   MetricsCards,
   StockTrendChart,

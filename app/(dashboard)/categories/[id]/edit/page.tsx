@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Save } from 'lucide-react';
 import { CategoryService } from '@/services/categoryService';
 import { categorySchema, type CategoryFormData } from '@/lib/validations/category';
-import { Button, Input, Textarea, Select, Card, CardHeader, CardTitle, CardContent, Alert, Skeleton } from '@/components/ui';
+import { Button, Input, Textarea, NativeSelect as Select, Card, CardHeader, CardTitle, CardContent, Alert, Skeleton } from '@/components/ui';
 import type { Category } from '@/types';
 import toast from 'react-hot-toast';
 

@@ -6,7 +6,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Search, Filter, Plus, Edit, Trash2, UserX, UserCheck, Users as UsersIcon } from 'lucide-react';
 import { UserService } from '@/services/userService';
 import { DataTable } from '@/components/ui/DataTable';
-import { Button, Input, Select, Badge, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
+import { Button, Input, NativeSelect as Select, Badge, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';
 import { getRoleDisplayName } from '@/lib/constants/permissions';

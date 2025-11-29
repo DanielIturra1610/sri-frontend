@@ -14,7 +14,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { SettingsService } from '@/services/settingsService';
-import { Button, Card, CardHeader, CardTitle, CardContent, Input, Select } from '@/components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Input, NativeSelect as Select } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 import {
   companySettingsSchema,

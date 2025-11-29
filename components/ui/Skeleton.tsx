@@ -1,75 +1,71 @@
-import React from 'react';
-import { cn } from '@/lib/utils/cn';
+import * as React from "react";
+import { cn } from "@/lib/utils/cn";
 
-export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'text' | 'circular' | 'rectangular';
-  width?: string | number;
-  height?: string | number;
-}
-
-export function Skeleton({
+function Skeleton({
   className,
-  variant = 'text',
-  width,
-  height,
-  style,
   ...props
-}: SkeletonProps) {
-  const variants = {
-    text: 'h-4 rounded',
-    circular: 'rounded-full',
-    rectangular: 'rounded',
-  };
-
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        'animate-pulse bg-gray-200 dark:bg-gray-700',
-        variants[variant],
-        className
-      )}
-      style={{
-        width: width,
-        height: height || (variant === 'text' ? '1rem' : undefined),
-        ...style,
-      }}
+      className={cn("animate-pulse rounded-md bg-muted", className)}
       {...props}
     />
   );
 }
 
 // Skeleton presets
-export function SkeletonCard() {
+function SkeletonCard() {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-      <Skeleton variant="rectangular" height="12rem" className="mb-4" />
-      <Skeleton className="mb-2" width="60%" />
-      <Skeleton width="40%" />
+    <div className="rounded-lg border bg-card p-6 shadow-soft">
+      <Skeleton className="mb-4 h-48 w-full" />
+      <Skeleton className="mb-2 h-4 w-3/5" />
+      <Skeleton className="h-4 w-2/5" />
     </div>
   );
 }
 
-export function SkeletonTable({ rows = 5 }: { rows?: number }) {
+function SkeletonTable({ rows = 5 }: { rows?: number }) {
   return (
     <div className="space-y-3">
+      <div className="flex gap-4 border-b pb-3">
+        <Skeleton className="h-4 w-[10%]" />
+        <Skeleton className="h-4 w-[30%]" />
+        <Skeleton className="h-4 w-[20%]" />
+        <Skeleton className="h-4 w-[40%]" />
+      </div>
       {Array.from({ length: rows }).map((_, index) => (
         <div key={index} className="flex gap-4">
-          <Skeleton width="10%" />
-          <Skeleton width="30%" />
-          <Skeleton width="20%" />
-          <Skeleton width="40%" />
+          <Skeleton className="h-4 w-[10%]" />
+          <Skeleton className="h-4 w-[30%]" />
+          <Skeleton className="h-4 w-[20%]" />
+          <Skeleton className="h-4 w-[40%]" />
         </div>
       ))}
     </div>
   );
 }
 
-export function SkeletonAvatar({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+function SkeletonAvatar({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const sizes = {
-    sm: 'h-8 w-8',
-    md: 'h-12 w-12',
-    lg: 'h-16 w-16',
+    sm: "h-8 w-8",
+    md: "h-12 w-12",
+    lg: "h-16 w-16",
   };
 
-  return <Skeleton variant="circular" className={sizes[size]} />;
+  return <Skeleton className={cn("rounded-full", sizes[size])} />;
 }
+
+function SkeletonText({ lines = 3 }: { lines?: number }) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: lines }).map((_, index) => (
+        <Skeleton
+          key={index}
+          className={cn("h-4", index === lines - 1 ? "w-4/5" : "w-full")}
+        />
+      ))}
+    </div>
+  );
+}
+
+export { Skeleton, SkeletonCard, SkeletonTable, SkeletonAvatar, SkeletonText };

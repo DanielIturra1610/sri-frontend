@@ -13,7 +13,7 @@ import {
   CardContent,
   Input,
   Textarea,
-  Select,
+  NativeSelect as Select,
   Alert,
   Skeleton,
 } from '@/components/ui';

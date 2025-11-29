@@ -145,7 +145,7 @@ export default function AlertsPage() {
       cell: ({ row }) => {
         const level = getAlertLevel(row.original);
         return (
-          <Badge variant={level === 'critical' ? 'danger' : 'warning'}>
+          <Badge variant={level === 'critical' ? 'destructive' : 'warning'}>
             {level === 'critical' ? 'Crítico' : 'Stock Bajo'}
           </Badge>
         );

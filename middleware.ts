@@ -12,6 +12,12 @@ const publicRoutes = [
   '/register',
   '/forgot-password',
   '/reset-password',
+  '/verify-email',
+];
+
+// Define routes that require authentication but NOT a tenant (onboarding)
+const onboardingRoutes = [
+  '/onboarding',
 ];
 
 // Define role-based permissions for routes
@@ -42,7 +48,14 @@ const rolePermissions: Record<string, string[]> = {
  * Check if a route is public (doesn't require authentication)
  */
 function isPublicRoute(pathname: string): boolean {
-  return publicRoutes.some(route => pathname.startsWith(route));
+  return publicRoutes.some(route => pathname === route || pathname.startsWith(route + '/') || pathname.startsWith(route + '?'));
+}
+
+/**
+ * Check if a route is an onboarding route (requires auth but not tenant)
+ */
+function isOnboardingRoute(pathname: string): boolean {
+  return onboardingRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
 }
 
 /**
@@ -64,7 +77,7 @@ function hasPermission(pathname: string, userRole: string): boolean {
 /**
  * Parse user data from cookie
  */
-function getUserFromCookie(request: NextRequest): { role: string; id: string } | null {
+function getUserFromCookie(request: NextRequest): { role: string; id: string; tenant_id?: string } | null {
   const userCookie = request.cookies.get('user');
 
   if (!userCookie) {
@@ -76,6 +89,7 @@ function getUserFromCookie(request: NextRequest): { role: string; id: string } |
     return {
       role: user.role,
       id: user.id,
+      tenant_id: user.tenant_id,
     };
   } catch {
     return null;
@@ -90,27 +104,52 @@ export function middleware(request: NextRequest) {
   const user = getUserFromCookie(request);
 
   const isAuthenticated = !!accessToken && !!user;
+  const hasTenant = !!user?.tenant_id;
 
   // Allow public routes
   if (isPublicRoute(pathname)) {
-    // If authenticated and on landing page, redirect to dashboard
-    if (isAuthenticated && pathname === '/') {
+    // If authenticated user with tenant on landing page, redirect to dashboard
+    if (isAuthenticated && hasTenant && pathname === '/') {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    // If authenticated and trying to access auth pages (login/register), redirect to dashboard
-    if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
+    // If authenticated user with tenant trying to access auth pages, redirect to dashboard
+    if (isAuthenticated && hasTenant && (pathname === '/login' || pathname === '/register')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    // If authenticated user without tenant trying to access login, redirect to onboarding
+    if (isAuthenticated && !hasTenant && pathname === '/login') {
+      return NextResponse.redirect(new URL('/onboarding/create-tenant', request.url));
     }
     return NextResponse.next();
   }
 
-  // Protect all other routes
+  // Handle onboarding routes (require auth but not tenant)
+  if (isOnboardingRoute(pathname)) {
+    if (!isAuthenticated) {
+      // Not authenticated, redirect to login
+      const loginUrl = new URL('/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+    if (hasTenant) {
+      // Already has tenant, redirect to dashboard
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    // Authenticated without tenant - allow access to onboarding
+    return NextResponse.next();
+  }
+
+  // Protect all other routes (require both auth AND tenant)
   if (!isAuthenticated) {
     // Not authenticated, redirect to login
     const loginUrl = new URL('/login', request.url);
     // Save the original URL to redirect back after login
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // User is authenticated but has no tenant - redirect to onboarding
+  if (!hasTenant) {
+    return NextResponse.redirect(new URL('/onboarding/create-tenant', request.url));
   }
 
   // Check role-based permissions
@@ -121,7 +160,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(dashboardUrl);
   }
 
-  // User is authenticated and has permission
+  // User is authenticated, has tenant, and has permission
   return NextResponse.next();
 }
 

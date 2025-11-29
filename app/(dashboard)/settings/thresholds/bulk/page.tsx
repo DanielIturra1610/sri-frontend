@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { Input } from '@/components/ui/Input';
-import { Select } from '@/components/ui/Select';
+import { NativeSelect as Select } from '@/components/ui/Select';
 import { Alert } from '@/components/ui/Alert';
 import { ProductService } from '@/services/productService';
 import { CategoryService } from '@/services/categoryService';

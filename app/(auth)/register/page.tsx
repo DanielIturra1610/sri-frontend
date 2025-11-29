@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { AuthService } from '@/services/authService';
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth';
 
 export default function RegisterPage() {
-  const { register: registerUser } = useAuth();
+  const router = useRouter();
   const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -18,16 +20,24 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {
-      plan: 'basic',
-    },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setError('');
+      setSuccess('');
       setIsLoading(true);
-      await registerUser(data);
+
+      const response = await AuthService.register(data);
+
+      // Show success message - user needs to verify email
+      setSuccess(response.message || 'Registro exitoso. Por favor verifica tu correo electrónico para continuar.');
+
+      // Redirect to verification pending page after 2 seconds
+      setTimeout(() => {
+        router.push('/verify-email?email=' + encodeURIComponent(data.email));
+      }, 2000);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al registrar la cuenta');
     } finally {
@@ -43,7 +53,7 @@ export default function RegisterPage() {
           Crear Cuenta
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Registra tu empresa en SRI Inventarios
+          Comienza a gestionar tu inventario con SRI
         </p>
       </div>
 
@@ -54,203 +64,84 @@ export default function RegisterPage() {
         </div>
       )}
 
+      {/* Success Message */}
+      {success && (
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
+        </div>
+      )}
+
       {/* Register Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Company Information Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">
-            Información de la Empresa
-          </h2>
-
-          {/* Company Name */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Nombre de la Empresa *
-            </label>
-            <input
-              {...register('name')}
-              id="name"
-              type="text"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="Mi Empresa SRL"
-            />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
-
-          {/* Company RUT */}
-          <div>
-            <label
-              htmlFor="rut_empresa"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              RUT de la Empresa *
-            </label>
-            <input
-              {...register('rut_empresa')}
-              id="rut_empresa"
-              type="text"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="12345678-9"
-            />
-            {errors.rut_empresa && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.rut_empresa.message}
-              </p>
-            )}
-          </div>
-
-          {/* Company Email */}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Email de la Empresa *
-            </label>
-            <input
-              {...register('email')}
-              id="email"
-              type="email"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="empresa@ejemplo.com"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-
-          {/* Company Phone */}
-          <div>
-            <label
-              htmlFor="phone"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Teléfono (Opcional)
-            </label>
-            <input
-              {...register('phone')}
-              id="phone"
-              type="tel"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="+56 9 1234 5678"
-            />
-            {errors.phone && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.phone.message}
-              </p>
-            )}
-          </div>
-
-          {/* Plan Selection */}
-          <div>
-            <label
-              htmlFor="plan"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Plan *
-            </label>
-            <select
-              {...register('plan')}
-              id="plan"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-            >
-              <option value="basic">Básico - Gratis</option>
-              <option value="professional">Profesional - $29.990/mes</option>
-              <option value="enterprise">Empresarial - $99.990/mes</option>
-            </select>
-            {errors.plan && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.plan.message}
-              </p>
-            )}
-          </div>
+        {/* Full Name */}
+        <div>
+          <label
+            htmlFor="full_name"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Nombre Completo *
+          </label>
+          <input
+            {...register('full_name')}
+            id="full_name"
+            type="text"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            placeholder="Juan Pérez"
+          />
+          {errors.full_name && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.full_name.message}
+            </p>
+          )}
         </div>
 
-        {/* User Information Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white border-b pb-2">
-            Información del Usuario Administrador
-          </h2>
-
-          {/* User Full Name */}
-          <div>
-            <label
-              htmlFor="user.full_name"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Nombre Completo *
-            </label>
-            <input
-              {...register('user.full_name')}
-              id="user.full_name"
-              type="text"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="Juan Pérez"
-            />
-            {errors.user?.full_name && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.user.full_name.message}
-              </p>
-            )}
-          </div>
-
-          {/* User Email */}
-          <div>
-            <label
-              htmlFor="user.email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Email del Usuario *
-            </label>
-            <input
-              {...register('user.email')}
-              id="user.email"
-              type="email"
-              autoComplete="username"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="juan@ejemplo.com"
-            />
-            {errors.user?.email && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.user.email.message}
-              </p>
-            )}
-          </div>
-
-          {/* User Password */}
-          <div>
-            <label
-              htmlFor="user.password"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Contraseña *
-            </label>
-            <input
-              {...register('user.password')}
-              id="user.password"
-              type="password"
-              autoComplete="new-password"
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
-              placeholder="••••••••"
-            />
-            {errors.user?.password && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                {errors.user.password.message}
-              </p>
-            )}
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Mínimo 8 caracteres, debe incluir mayúscula, minúscula y número
+        {/* Email */}
+        <div>
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Email *
+          </label>
+          <input
+            {...register('email')}
+            id="email"
+            type="email"
+            autoComplete="username"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            placeholder="juan@ejemplo.com"
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.email.message}
             </p>
-          </div>
+          )}
+        </div>
+
+        {/* Password */}
+        <div>
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Contraseña *
+          </label>
+          <input
+            {...register('password')}
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            placeholder="••••••••"
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.password.message}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Mínimo 8 caracteres, debe incluir mayúscula, minúscula y número
+          </p>
         </div>
 
         {/* Terms and Conditions */}
@@ -276,7 +167,7 @@ export default function RegisterPage() {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || !!success}
           className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2.5 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           {isLoading ? (
@@ -308,6 +199,18 @@ export default function RegisterPage() {
           )}
         </button>
       </form>
+
+      {/* Info about next steps */}
+      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+          Próximos pasos después de registrarte:
+        </h3>
+        <ol className="text-sm text-blue-700 dark:text-blue-400 list-decimal list-inside space-y-1">
+          <li>Verificar tu correo electrónico</li>
+          <li>Iniciar sesión</li>
+          <li>Crear o unirte a una empresa</li>
+        </ol>
+      </div>
 
       {/* Login Link */}
       <div className="mt-6 text-center">

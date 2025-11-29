@@ -17,7 +17,7 @@ import {
   Settings as SettingsIcon,
 } from 'lucide-react';
 import { BackupService } from '@/services/backupService';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select, Input, Badge } from '@/components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, NativeSelect as Select, Input, Badge } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 import type { Backup, BackupType, BackupStatus, BackupFormat, CreateBackupDTO } from '@/types';
 import toast from 'react-hot-toast';

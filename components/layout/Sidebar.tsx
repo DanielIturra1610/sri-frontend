@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -19,12 +19,21 @@ import {
   AlertTriangle,
   Shield,
   Database,
-} from 'lucide-react';
-import { Can } from '@/components/auth';
-import { PERMISSIONS } from '@/lib/constants/permissions';
-import { cn } from '@/lib/utils/cn';
-import { AlertBadge } from '@/components/alerts';
-import type { UserRole } from '@/types';
+  ChevronRight,
+} from "lucide-react";
+import { Can } from "@/components/auth";
+import { PERMISSIONS } from "@/lib/constants/permissions";
+import { cn } from "@/lib/utils/cn";
+import { AlertBadge } from "@/components/alerts";
+import { ScrollArea } from "@/components/ui/ScrollArea";
+import { Separator } from "@/components/ui/Separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/Tooltip";
+import type { UserRole } from "@/types";
 
 interface NavItem {
   name: string;
@@ -37,111 +46,111 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   {
-    name: 'Dashboard',
-    href: '/dashboard',
+    name: "Dashboard",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    name: 'Productos',
-    href: '/products',
+    name: "Productos",
+    href: "/products",
     icon: Package,
     permission: PERMISSIONS.PRODUCTS_VIEW,
     children: [
       {
-        name: 'Ver productos',
-        href: '/products',
+        name: "Ver productos",
+        href: "/products",
         icon: Package,
         permission: PERMISSIONS.PRODUCTS_VIEW,
       },
       {
-        name: 'Categorías',
-        href: '/categories',
+        name: "Categorias",
+        href: "/categories",
         icon: FolderTree,
         permission: PERMISSIONS.CATEGORIES_VIEW,
       },
     ],
   },
   {
-    name: 'Inventario',
-    href: '/stock',
+    name: "Inventario",
+    href: "/stock",
     icon: Warehouse,
     permission: PERMISSIONS.INVENTORY_VIEW,
     children: [
       {
-        name: 'Stock',
-        href: '/stock',
+        name: "Stock",
+        href: "/stock",
         icon: Warehouse,
         permission: PERMISSIONS.INVENTORY_VIEW,
       },
       {
-        name: 'Alertas',
-        href: '/alerts',
+        name: "Alertas",
+        href: "/alerts",
         icon: AlertTriangle,
         permission: PERMISSIONS.INVENTORY_VIEW,
       },
       {
-        name: 'Transferencias',
-        href: '/transfers',
+        name: "Transferencias",
+        href: "/transfers",
         icon: ArrowRightLeft,
         permission: PERMISSIONS.TRANSFERS_VIEW,
       },
       {
-        name: 'Transacciones',
-        href: '/inventory/transactions',
+        name: "Transacciones",
+        href: "/inventory/transactions",
         icon: FileText,
         permission: PERMISSIONS.INVENTORY_VIEW,
       },
       {
-        name: 'Ubicaciones',
-        href: '/locations',
+        name: "Ubicaciones",
+        href: "/locations",
         icon: MapPin,
         permission: PERMISSIONS.LOCATIONS_VIEW,
       },
     ],
   },
   {
-    name: 'Importar',
-    href: '/import',
+    name: "Importar",
+    href: "/import",
     icon: Upload,
     permission: PERMISSIONS.IMPORT_PRODUCTS,
   },
   {
-    name: 'Reportes',
-    href: '/reports',
+    name: "Reportes",
+    href: "/reports",
     icon: BarChart3,
     permission: PERMISSIONS.REPORTS_VIEW,
   },
   {
-    name: 'Configuración',
-    href: '/settings',
+    name: "Configuracion",
+    href: "/settings",
     icon: Settings,
     permission: PERMISSIONS.SETTINGS_VIEW,
     children: [
       {
-        name: 'Umbrales de Stock',
-        href: '/settings/thresholds',
+        name: "Umbrales de Stock",
+        href: "/settings/thresholds",
         icon: Settings,
         permission: PERMISSIONS.SETTINGS_VIEW,
       },
     ],
   },
   {
-    name: 'Usuarios',
-    href: '/users',
+    name: "Usuarios",
+    href: "/users",
     icon: Users,
-    role: ['OWNER', 'ADMIN'],
+    role: ["OWNER", "ADMIN"],
   },
   {
-    name: 'Logs de Auditoría',
-    href: '/audit-logs',
+    name: "Logs de Auditoria",
+    href: "/audit-logs",
     icon: Shield,
-    role: ['OWNER', 'ADMIN', 'AUDITOR'],
+    role: ["OWNER", "ADMIN", "AUDITOR"],
   },
   {
-    name: 'Respaldos',
-    href: '/backups',
+    name: "Respaldos",
+    href: "/backups",
     icon: Database,
-    role: ['OWNER', 'ADMIN'],
+    role: ["OWNER", "ADMIN"],
   },
 ];
 
@@ -152,20 +161,38 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') {
+    if (href === "/dashboard") {
       return pathname === href;
     }
     return pathname.startsWith(href);
   };
 
+  const toggleExpanded = (name: string) => {
+    setExpandedItems((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
+    );
+  };
+
+  // Auto-expand parent items if child is active
+  React.useEffect(() => {
+    navigation.forEach((item) => {
+      if (item.children?.some((child) => isActive(child.href))) {
+        setExpandedItems((prev) =>
+          prev.includes(item.name) ? prev : [...prev, item.name]
+        );
+      }
+    });
+  }, [pathname]);
+
   return (
-    <>
+    <TooltipProvider delayDuration={0}>
       {/* Mobile backdrop */}
       {open && (
         <div
-          className="fixed inset-0 bg-gray-900/50 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
           onClick={onClose}
         />
       )}
@@ -173,37 +200,46 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-40 h-screen transition-transform lg:translate-x-0',
-          'w-64 bg-white border-r border-gray-200 dark:bg-gray-900 dark:border-gray-700',
-          open ? 'translate-x-0' : '-translate-x-full'
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-sidebar transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "border-r border-sidebar-border",
+          open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+        {/* Header with Logo */}
+        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
+              <span className="text-lg font-bold text-primary-foreground">
+                S
+              </span>
             </div>
-            <span className="font-semibold text-lg text-gray-900 dark:text-white">
-              SRI Inventarios
-            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-sidebar-foreground">
+                SRI Inventarios
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                Sistema de Gestion
+              </span>
+            </div>
           </Link>
 
           {/* Close button (mobile only) */}
           <button
             onClick={onClose}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground lg:hidden"
           >
-            <X className="w-5 h-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3">
-          <ul className="space-y-1">
+        <ScrollArea className="flex-1 px-3 py-4">
+          <nav className="space-y-1">
             {navigation.map((item) => {
-              // Check if item should be rendered based on permissions/roles
               const shouldRender = !item.permission && !item.role;
+              const isItemActive = isActive(item.href);
+              const isExpanded = expandedItems.includes(item.name);
+              const hasChildren = item.children && item.children.length > 0;
 
               if (shouldRender || item.permission || item.role) {
                 return (
@@ -213,68 +249,129 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                     role={item.role}
                     fallback={shouldRender ? undefined : null}
                   >
-                    <li>
+                    <div className="space-y-1">
                       {/* Main nav item */}
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                          isActive(item.href)
-                            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
-                        )}
-                      >
-                        <item.icon className="w-5 h-5 mr-3" />
-                        {item.name}
-                      </Link>
+                      {hasChildren ? (
+                        <button
+                          onClick={() => toggleExpanded(item.name)}
+                          className={cn(
+                            "group flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+                            isItemActive
+                              ? "bg-sidebar-primary/10 text-sidebar-primary"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon
+                              className={cn(
+                                "h-4 w-4 transition-colors",
+                                isItemActive
+                                  ? "text-sidebar-primary"
+                                  : "text-muted-foreground group-hover:text-sidebar-accent-foreground"
+                              )}
+                            />
+                            <span>{item.name}</span>
+                          </div>
+                          <ChevronRight
+                            className={cn(
+                              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                              isExpanded && "rotate-90"
+                            )}
+                          />
+                        </button>
+                      ) : (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Link
+                              href={item.href}
+                              className={cn(
+                                "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+                                isItemActive
+                                  ? "bg-sidebar-primary/10 text-sidebar-primary"
+                                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                              )}
+                            >
+                              <item.icon
+                                className={cn(
+                                  "h-4 w-4 transition-colors",
+                                  isItemActive
+                                    ? "text-sidebar-primary"
+                                    : "text-muted-foreground group-hover:text-sidebar-accent-foreground"
+                                )}
+                              />
+                              <span>{item.name}</span>
+                            </Link>
+                          </TooltipTrigger>
+                          <TooltipContent side="right">
+                            {item.name}
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
 
                       {/* Submenu */}
-                      {item.children && item.children.length > 0 && (
-                        <ul className="mt-1 ml-4 space-y-1">
-                          {item.children.map((child) => (
-                            <Can
-                              key={child.name}
-                              permission={child.permission}
-                              role={child.role}
-                            >
-                              <li>
+                      {hasChildren && (
+                        <div
+                          className={cn(
+                            "overflow-hidden transition-all duration-200",
+                            isExpanded
+                              ? "max-h-96 opacity-100"
+                              : "max-h-0 opacity-0"
+                          )}
+                        >
+                          <div className="ml-4 space-y-1 border-l border-sidebar-border pl-3 pt-1">
+                            {item.children?.map((child) => (
+                              <Can
+                                key={child.name}
+                                permission={child.permission}
+                                role={child.role}
+                              >
                                 <Link
                                   href={child.href}
                                   className={cn(
-                                    'flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors',
+                                    "group flex items-center justify-between rounded-md px-3 py-1.5 text-sm transition-all duration-200",
                                     isActive(child.href)
-                                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                                      : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                                      ? "bg-sidebar-primary/10 text-sidebar-primary font-medium"
+                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                                   )}
                                 >
-                                  <div className="flex items-center">
-                                    <child.icon className="w-4 h-4 mr-3" />
-                                    {child.name}
+                                  <div className="flex items-center gap-3">
+                                    <child.icon
+                                      className={cn(
+                                        "h-3.5 w-3.5 transition-colors",
+                                        isActive(child.href)
+                                          ? "text-sidebar-primary"
+                                          : "text-muted-foreground group-hover:text-sidebar-accent-foreground"
+                                      )}
+                                    />
+                                    <span>{child.name}</span>
                                   </div>
-                                  {/* Alert Badge for Alerts menu item */}
-                                  {child.href === '/alerts' && <AlertBadge />}
+                                  {child.href === "/alerts" && <AlertBadge />}
                                 </Link>
-                              </li>
-                            </Can>
-                          ))}
-                        </ul>
+                              </Can>
+                            ))}
+                          </div>
+                        </div>
                       )}
-                    </li>
+                    </div>
                   </Can>
                 );
               }
               return null;
             })}
-          </ul>
-        </nav>
+          </nav>
+        </ScrollArea>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-xs text-gray-500 dark:text-gray-400">
-            Version 1.0.0
+        <div className="border-t border-sidebar-border p-4">
+          <Separator className="mb-3" />
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">v1.0.0</span>
+            <span className="text-[10px] text-muted-foreground">
+              SRI Inventarios
+            </span>
           </div>
         </div>
       </aside>
-    </>
+    </TooltipProvider>
   );
 }

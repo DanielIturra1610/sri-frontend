@@ -6,6 +6,8 @@ import type {
   RegisterData,
   AuthTokens,
   AuthUser,
+  Tenant,
+  CreateTenantData,
 } from '@/types';
 
 /**
@@ -16,20 +18,25 @@ import type {
 export class AuthService {
   /**
    * Login with email and password
+   * Returns requires_tenant: true if user needs to create/select a tenant
    */
   static async login(credentials: LoginCredentials): Promise<{
     user: AuthUser;
     tokens: AuthTokens;
+    requires_tenant: boolean;
+    tenant?: Tenant;
   }> {
     try {
       const response = await apiClient.post<ApiResponse<{
         user: AuthUser;
+        tenant?: Tenant;
         access_token: string;
         refresh_token: string;
         expires_in: number;
+        requires_tenant: boolean;
       }>>(API_ENDPOINTS.AUTH.LOGIN, credentials);
 
-      const { user, access_token, refresh_token, expires_in } = response.data.data!;
+      const { user, tenant, access_token, refresh_token, expires_in, requires_tenant } = response.data.data!;
 
       // Store tokens
       this.setTokens({
@@ -41,9 +48,16 @@ export class AuthService {
       // Store user info
       this.setUser(user);
 
+      // Store tenant info if available
+      if (tenant) {
+        this.setTenant(tenant);
+      }
+
       return {
         user,
         tokens: { access_token, refresh_token, expires_in },
+        requires_tenant: requires_tenant || false,
+        tenant,
       };
     } catch (error) {
       throw new Error(handleApiError(error));
@@ -51,36 +65,80 @@ export class AuthService {
   }
 
   /**
-   * Register a new tenant
+   * Register a new user (without tenant)
+   * User will need to verify email and then create/select tenant
    */
   static async register(data: RegisterData): Promise<{
     user: AuthUser;
-    tokens: AuthTokens;
+    message: string;
   }> {
     try {
       const response = await apiClient.post<ApiResponse<{
         user: AuthUser;
-        access_token: string;
-        refresh_token: string;
-        expires_in: number;
       }>>(API_ENDPOINTS.AUTH.REGISTER, data);
 
-      const { user, access_token, refresh_token, expires_in } = response.data.data!;
+      // Registration no longer returns tokens - user must verify email first
+      return {
+        user: response.data.data!.user,
+        message: response.data.message || 'Registration successful. Please verify your email.',
+      };
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 
-      // Store tokens
-      this.setTokens({
-        access_token,
-        refresh_token,
-        expires_in,
-      });
+  /**
+   * Verify email with token
+   */
+  static async verifyEmail(token: string): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<ApiResponse<{ message: string }>>(
+        API_ENDPOINTS.AUTH.VERIFY_EMAIL,
+        { token }
+      );
+      return { message: response.data.message || 'Email verified successfully' };
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
 
-      // Store user info
+  /**
+   * Resend verification email
+   */
+  static async resendVerification(email: string): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<ApiResponse<{ message: string }>>(
+        API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
+        { email }
+      );
+      return { message: response.data.message || 'Verification email sent' };
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Create tenant during onboarding
+   */
+  static async createTenant(data: CreateTenantData): Promise<{
+    tenant: Tenant;
+    user: AuthUser;
+  }> {
+    try {
+      const response = await apiClient.post<ApiResponse<{
+        tenant: Tenant;
+        user: AuthUser;
+      }>>(API_ENDPOINTS.ONBOARDING.CREATE_TENANT, data);
+
+      const { tenant, user } = response.data.data!;
+
+      // Update stored user with new tenant_id
       this.setUser(user);
 
-      return {
-        user,
-        tokens: { access_token, refresh_token, expires_in },
-      };
+      // Store tenant info
+      this.setTenant(tenant);
+
+      return { tenant, user };
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -244,12 +302,58 @@ export class AuthService {
       email: user.email,
       role: user.role,
       full_name: user.full_name,
+      tenant_id: user.tenant_id,
     }), {
       expires: 7 * 24 * 60 * 60, // 7 days
       path: '/',
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Lax',
     });
+  }
+
+  /**
+   * Set tenant in localStorage and cookies
+   */
+  private static setTenant(tenant: Tenant): void {
+    if (typeof window === 'undefined') return;
+
+    // Store in localStorage
+    localStorage.setItem('tenant', JSON.stringify(tenant));
+
+    // Store in cookies (for middleware)
+    setCookie('tenant', JSON.stringify({
+      id: tenant.id,
+      name: tenant.name,
+    }), {
+      expires: 7 * 24 * 60 * 60, // 7 days
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+    });
+  }
+
+  /**
+   * Get current tenant from localStorage
+   */
+  static getCurrentTenant(): Tenant | null {
+    if (typeof window === 'undefined') return null;
+
+    const tenantStr = localStorage.getItem('tenant');
+    if (!tenantStr) return null;
+
+    try {
+      return JSON.parse(tenantStr) as Tenant;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Check if user has a tenant assigned
+   */
+  static hasTenant(): boolean {
+    const user = this.getCurrentUser();
+    return !!user?.tenant_id || !!this.getCurrentTenant();
   }
 
   /**
@@ -263,10 +367,12 @@ export class AuthService {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('token_expires_in');
     localStorage.removeItem('user');
+    localStorage.removeItem('tenant');
 
     // Clear cookies
     deleteCookie('access_token', { path: '/' });
     deleteCookie('refresh_token', { path: '/' });
     deleteCookie('user', { path: '/' });
+    deleteCookie('tenant', { path: '/' });
   }
 }

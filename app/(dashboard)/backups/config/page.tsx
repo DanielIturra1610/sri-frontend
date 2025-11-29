@@ -12,7 +12,7 @@ import {
   Database,
 } from 'lucide-react';
 import { BackupService } from '@/services/backupService';
-import { Button, Card, CardHeader, CardTitle, CardContent, Input, Select } from '@/components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Input, NativeSelect as Select } from '@/components/ui';
 import type { BackupConfig, BackupFormat } from '@/types';
 import toast from 'react-hot-toast';
 

@@ -8,7 +8,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { ProductService } from '@/services/productService';
 import { CategoryService } from '@/services/categoryService';
 import { productSchema, type ProductFormData, unitOfMeasureLabels } from '@/lib/validations/product';
-import { Button, Input, Textarea, Select, Checkbox, Card, CardHeader, CardTitle, CardContent, Alert } from '@/components/ui';
+import { Button, Input, Textarea, NativeSelect as Select, Checkbox, Card, CardHeader, CardTitle, CardContent, Alert } from '@/components/ui';
 import type { Category } from '@/types';
 import toast from 'react-hot-toast';
 

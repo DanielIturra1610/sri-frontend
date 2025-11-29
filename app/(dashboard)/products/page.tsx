@@ -7,7 +7,7 @@ import { Search, Filter, Plus, MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-
 import { ProductService } from '@/services/productService';
 import { CategoryService } from '@/services/categoryService';
 import { DataTable } from '@/components/ui/DataTable';
-import { Button, Input, Select, Badge, Modal, ModalHeader, ModalBody, ModalFooter } from '@/components/ui';
+import { Button, Input, NativeSelect as Select, Badge, Modal, ModalHeader, ModalBody, ModalFooter } from '@/components/ui';
 import { Can } from '@/components/auth';
 import { PERMISSIONS } from '@/lib/constants/permissions';
 import type { Product, Category } from '@/types';

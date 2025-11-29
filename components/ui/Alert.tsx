@@ -1,100 +1,100 @@
-import React from 'react';
-import { cn } from '@/lib/utils/cn';
-import { X, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils/cn";
+import {
+  X,
+  AlertCircle,
+  CheckCircle2,
+  Info,
+  AlertTriangle,
+} from "lucide-react";
 
-export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
-  title?: string;
-  onClose?: () => void;
-}
-
-const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant = 'default', title, onClose, children, ...props }, ref) => {
-    const variants = {
-      default: {
-        container: 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700',
-        icon: 'text-gray-600 dark:text-gray-400',
-        title: 'text-gray-900 dark:text-white',
-        description: 'text-gray-700 dark:text-gray-300',
-        Icon: Info,
+const alertVariants = cva(
+  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  {
+    variants: {
+      variant: {
+        default: "bg-background text-foreground",
+        destructive:
+          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive bg-destructive/5",
+        danger:
+          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive bg-destructive/5",
+        success:
+          "border-success/50 text-success dark:border-success [&>svg]:text-success bg-success/5",
+        warning:
+          "border-warning/50 text-warning-foreground dark:border-warning [&>svg]:text-warning bg-warning/5",
+        info: "border-info/50 text-info dark:border-info [&>svg]:text-info bg-info/5",
       },
-      success: {
-        container: 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800',
-        icon: 'text-green-600 dark:text-green-400',
-        title: 'text-green-900 dark:text-green-300',
-        description: 'text-green-700 dark:text-green-400',
-        Icon: CheckCircle,
-      },
-      warning: {
-        container: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800',
-        icon: 'text-yellow-600 dark:text-yellow-400',
-        title: 'text-yellow-900 dark:text-yellow-300',
-        description: 'text-yellow-700 dark:text-yellow-400',
-        Icon: AlertTriangle,
-      },
-      danger: {
-        container: 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800',
-        icon: 'text-red-600 dark:text-red-400',
-        title: 'text-red-900 dark:text-red-300',
-        description: 'text-red-700 dark:text-red-400',
-        Icon: AlertCircle,
-      },
-      info: {
-        container: 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800',
-        icon: 'text-blue-600 dark:text-blue-400',
-        title: 'text-blue-900 dark:text-blue-300',
-        description: 'text-blue-700 dark:text-blue-400',
-        Icon: Info,
-      },
-    };
-
-    const config = variants[variant];
-    const Icon = config.Icon;
-
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'relative rounded-lg border p-4',
-          config.container,
-          className
-        )}
-        {...props}
-      >
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <Icon className={cn('h-5 w-5', config.icon)} />
-          </div>
-          <div className="ml-3 flex-1">
-            {title && (
-              <h3 className={cn('text-sm font-medium', config.title)}>{title}</h3>
-            )}
-            {children && (
-              <div className={cn('text-sm', title && 'mt-2', config.description)}>
-                {children}
-              </div>
-            )}
-          </div>
-          {onClose && (
-            <div className="ml-auto pl-3">
-              <button
-                onClick={onClose}
-                className={cn(
-                  'inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2',
-                  config.icon,
-                  'hover:bg-black/5 dark:hover:bg-white/5'
-                )}
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    },
+    defaultVariants: {
+      variant: "default",
+    },
   }
 );
 
-Alert.displayName = 'Alert';
+const iconMap = {
+  default: Info,
+  destructive: AlertCircle,
+  danger: AlertCircle,
+  success: CheckCircle2,
+  warning: AlertTriangle,
+  info: Info,
+};
 
-export { Alert };
+const Alert = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> &
+    VariantProps<typeof alertVariants> & {
+      onClose?: () => void;
+    }
+>(({ className, variant = "default", onClose, children, ...props }, ref) => {
+  const Icon = iconMap[(variant || "default") as keyof typeof iconMap];
+
+  return (
+    <div
+      ref={ref}
+      role="alert"
+      className={cn(alertVariants({ variant }), className)}
+      {...props}
+    >
+      <Icon className="h-4 w-4" />
+      {children}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute right-2 top-2 rounded-md p-1 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </button>
+      )}
+    </div>
+  );
+});
+Alert.displayName = "Alert";
+
+const AlertTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h5
+    ref={ref}
+    className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+    {...props}
+  />
+));
+AlertTitle.displayName = "AlertTitle";
+
+const AlertDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm [&_p]:leading-relaxed", className)}
+    {...props}
+  />
+));
+AlertDescription.displayName = "AlertDescription";
+
+export { Alert, AlertTitle, AlertDescription, alertVariants };

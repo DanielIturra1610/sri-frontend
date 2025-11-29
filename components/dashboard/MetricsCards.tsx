@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Package,
   Warehouse,
@@ -9,15 +9,16 @@ import {
   Users,
   AlertTriangle,
   XCircle,
-  TrendingDown,
   ArrowRightLeft,
   Bell,
   DollarSign,
   Activity,
   TrendingUp,
-} from 'lucide-react';
-import { Card, CardContent } from '@/components/ui';
-import type { DashboardMetrics } from '@/services/dashboardService';
+  ArrowUpRight,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui";
+import { cn } from "@/lib/utils/cn";
+import type { DashboardMetrics } from "@/services/dashboardService";
 
 interface MetricsCardsProps {
   metrics: DashboardMetrics;
@@ -28,106 +29,112 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
 
   const metricsConfig = [
     {
-      title: 'Total Productos',
+      title: "Total Productos",
       value: metrics.total_products,
       icon: Package,
-      color: 'blue',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/20',
-      textColor: 'text-blue-600 dark:text-blue-400',
-      link: '/products',
+      gradient: "from-blue-500 to-blue-600",
+      bgGradient: "from-blue-500/10 to-blue-600/10",
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-600",
+      link: "/products",
     },
     {
-      title: 'Ubicaciones',
+      title: "Ubicaciones",
       value: metrics.total_locations,
       icon: Warehouse,
-      color: 'green',
-      bgColor: 'bg-green-100 dark:bg-green-900/20',
-      textColor: 'text-green-600 dark:text-green-400',
-      link: '/locations',
+      gradient: "from-emerald-500 to-emerald-600",
+      bgGradient: "from-emerald-500/10 to-emerald-600/10",
+      iconBg: "bg-emerald-500/10",
+      iconColor: "text-emerald-600",
+      link: "/locations",
     },
     {
-      title: 'Categorías',
+      title: "Categorias",
       value: metrics.total_categories,
       icon: Layers,
-      color: 'purple',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-      textColor: 'text-purple-600 dark:text-purple-400',
-      link: '/categories',
+      gradient: "from-violet-500 to-violet-600",
+      bgGradient: "from-violet-500/10 to-violet-600/10",
+      iconBg: "bg-violet-500/10",
+      iconColor: "text-violet-600",
+      link: "/categories",
     },
     {
-      title: 'Usuarios',
+      title: "Usuarios",
       value: metrics.total_users,
       icon: Users,
-      color: 'indigo',
-      bgColor: 'bg-indigo-100 dark:bg-indigo-900/20',
-      textColor: 'text-indigo-600 dark:text-indigo-400',
-      link: '/users',
+      gradient: "from-indigo-500 to-indigo-600",
+      bgGradient: "from-indigo-500/10 to-indigo-600/10",
+      iconBg: "bg-indigo-500/10",
+      iconColor: "text-indigo-600",
+      link: "/users",
     },
+  ];
+
+  const alertMetrics = [
     {
-      title: 'Stock Crítico',
+      title: "Stock Critico",
       value: metrics.critical_stock,
       icon: XCircle,
-      color: 'red',
-      bgColor: 'bg-red-100 dark:bg-red-900/20',
-      textColor: 'text-red-600 dark:text-red-400',
-      link: '/alerts',
-      subtitle: 'sin existencias',
+      color: "text-destructive",
+      bgColor: "bg-destructive/10",
+      borderColor: "border-destructive/20",
+      link: "/alerts",
+      subtitle: "sin existencias",
+      urgent: true,
     },
     {
-      title: 'Stock Bajo',
+      title: "Stock Bajo",
       value: metrics.low_stock,
       icon: AlertTriangle,
-      color: 'yellow',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/20',
-      textColor: 'text-yellow-600 dark:text-yellow-400',
-      link: '/alerts',
-      subtitle: 'por debajo del mínimo',
+      color: "text-warning",
+      bgColor: "bg-warning/10",
+      borderColor: "border-warning/20",
+      link: "/alerts",
+      subtitle: "por debajo del minimo",
+      urgent: metrics.low_stock > 5,
     },
     {
-      title: 'Transferencias Pendientes',
+      title: "Transferencias Pendientes",
       value: metrics.pending_transfers,
       icon: ArrowRightLeft,
-      color: 'orange',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/20',
-      textColor: 'text-orange-600 dark:text-orange-400',
-      link: '/transfers',
+      color: "text-orange-600",
+      bgColor: "bg-orange-500/10",
+      borderColor: "border-orange-500/20",
+      link: "/transfers",
     },
     {
-      title: 'Notificaciones',
+      title: "Notificaciones",
       value: metrics.unread_notifications,
       icon: Bell,
-      color: 'pink',
-      bgColor: 'bg-pink-100 dark:bg-pink-900/20',
-      textColor: 'text-pink-600 dark:text-pink-400',
-      link: '/notifications',
-      subtitle: 'sin leer',
+      color: "text-pink-600",
+      bgColor: "bg-pink-500/10",
+      borderColor: "border-pink-500/20",
+      link: "/notifications",
+      subtitle: "sin leer",
     },
   ];
 
   const summaryMetrics = [
     {
-      title: 'Valor Total Inventario',
-      value: `$${metrics.total_stock_value.toLocaleString('es-CL')}`,
+      title: "Valor Total Inventario",
+      value: `$${metrics.total_stock_value.toLocaleString("es-CL")}`,
       icon: DollarSign,
-      color: 'emerald',
-      bgColor: 'bg-emerald-100 dark:bg-emerald-900/20',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
+      gradient: "from-emerald-500 to-teal-500",
+      description: "Valor estimado del stock",
     },
     {
-      title: 'Movimientos Hoy',
+      title: "Movimientos Hoy",
       value: metrics.stock_movements_today,
       icon: Activity,
-      color: 'cyan',
-      bgColor: 'bg-cyan-100 dark:bg-cyan-900/20',
-      textColor: 'text-cyan-600 dark:text-cyan-400',
+      gradient: "from-blue-500 to-cyan-500",
+      description: "Entradas y salidas",
     },
     {
-      title: 'Movimientos Esta Semana',
+      title: "Movimientos Esta Semana",
       value: metrics.stock_movements_week,
       icon: TrendingUp,
-      color: 'teal',
-      bgColor: 'bg-teal-100 dark:bg-teal-900/20',
-      textColor: 'text-teal-600 dark:text-teal-400',
+      gradient: "from-violet-500 to-purple-500",
+      description: "Ultimos 7 dias",
     },
   ];
 
@@ -140,32 +147,82 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
           return (
             <Card
               key={metric.title}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
+              variant="interactive"
               onClick={() => metric.link && router.push(metric.link)}
+              className="group overflow-hidden"
             >
               <CardContent className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className={`w-12 h-12 ${metric.bgColor} rounded-lg flex items-center justify-center`}>
-                      <Icon className={`w-6 h-6 ${metric.textColor}`} />
-                    </div>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {metric.title}
+                    </p>
+                    <p className="text-3xl font-bold tracking-tight text-foreground">
+                      {metric.value.toLocaleString()}
+                    </p>
                   </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
-                        {metric.title}
-                      </dt>
-                      <dd className="flex items-baseline">
-                        <div className={`text-2xl font-semibold ${metric.subtitle ? metric.textColor : 'text-gray-900 dark:text-white'}`}>
-                          {metric.value}
-                        </div>
-                        {metric.subtitle && (
-                          <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                            {metric.subtitle}
-                          </span>
-                        )}
-                      </dd>
-                    </dl>
+                  <div
+                    className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-xl transition-transform group-hover:scale-110",
+                      metric.iconBg
+                    )}
+                  >
+                    <Icon className={cn("h-6 w-6", metric.iconColor)} />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center text-xs text-muted-foreground">
+                  <ArrowUpRight className="mr-1 h-3 w-3 text-primary" />
+                  <span className="text-primary font-medium">Ver detalles</span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Alert metrics */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {alertMetrics.map((metric) => {
+          const Icon = metric.icon;
+          return (
+            <Card
+              key={metric.title}
+              variant="interactive"
+              onClick={() => metric.link && router.push(metric.link)}
+              className={cn(
+                "group border-l-4 transition-all",
+                metric.borderColor,
+                metric.urgent &&
+                  metric.value > 0 &&
+                  "animate-pulse ring-2 ring-destructive/20"
+              )}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div
+                    className={cn(
+                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                      metric.bgColor
+                    )}
+                  >
+                    <Icon className={cn("h-5 w-5", metric.color)} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-muted-foreground truncate">
+                      {metric.title}
+                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <span
+                        className={cn("text-2xl font-bold", metric.color)}
+                      >
+                        {metric.value}
+                      </span>
+                      {metric.subtitle && (
+                        <span className="text-xs text-muted-foreground">
+                          {metric.subtitle}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -179,19 +236,27 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
         {summaryMetrics.map((metric) => {
           const Icon = metric.icon;
           return (
-            <Card key={metric.title}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            <Card key={metric.title} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex items-center">
+                  <div
+                    className={cn(
+                      "flex h-full w-20 items-center justify-center bg-gradient-to-br py-6",
+                      metric.gradient
+                    )}
+                  >
+                    <Icon className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="flex-1 p-4">
+                    <p className="text-sm font-medium text-muted-foreground">
                       {metric.title}
                     </p>
-                    <p className={`text-3xl font-bold mt-2 ${metric.textColor}`}>
+                    <p className="mt-1 text-2xl font-bold text-foreground">
                       {metric.value}
                     </p>
-                  </div>
-                  <div className={`w-14 h-14 ${metric.bgColor} rounded-full flex items-center justify-center`}>
-                    <Icon className={`w-7 h-7 ${metric.textColor}`} />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {metric.description}
+                    </p>
                   </div>
                 </div>
               </CardContent>

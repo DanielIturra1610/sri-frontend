@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { AuditLogService } from '@/services/auditLogService';
 import { UserService } from '@/services/userService';
-import { Button, Card, CardHeader, CardTitle, CardContent, Select, Input, Badge } from '@/components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, NativeSelect as Select, Input, Badge } from '@/components/ui';
 import { cn } from '@/lib/utils/cn';
 import type { AuditLog, AuditAction, AuditEntityType, User as UserType } from '@/types';
 import toast from 'react-hot-toast';

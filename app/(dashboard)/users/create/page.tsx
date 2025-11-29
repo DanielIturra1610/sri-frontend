@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Save, UserPlus, Info } from 'lucide-react';
 import { UserService } from '@/services/userService';
 import { createUserSchema, type CreateUserFormData, roleLabels, roleDescriptions } from '@/lib/validations/user';
-import { Button, Input, Select, Checkbox, Card, CardHeader, CardTitle, CardContent, Alert } from '@/components/ui';
+import { Button, Input, NativeSelect as Select, Checkbox, Card, CardHeader, CardTitle, CardContent, Alert } from '@/components/ui';
 import type { UserRole } from '@/types';
 import toast from 'react-hot-toast';
 

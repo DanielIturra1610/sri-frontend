@@ -5,13 +5,14 @@
 // User types
 export interface User {
   id: string;
-  tenant_id: string;
+  tenant_id?: string; // Optional - user may not have tenant yet (onboarding)
   email: string;
   full_name: string;
   rut?: string;
   phone?: string;
   role: UserRole;
   is_active: boolean;
+  email_verified: boolean;
   created_at: string;
 }
 
@@ -24,16 +25,9 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  name: string;
-  rut_empresa: string;
   email: string;
-  phone?: string;
-  plan: 'basic' | 'professional' | 'enterprise';
-  user: {
-    full_name: string;
-    email: string;
-    password: string;
-  };
+  password: string;
+  full_name: string;
 }
 
 export interface AuthTokens {
@@ -44,6 +38,37 @@ export interface AuthTokens {
 
 export interface AuthUser extends User {
   permissions: string[];
+}
+
+// Login response with requires_tenant flag
+export interface LoginResponse {
+  user: AuthUser;
+  tenant?: Tenant;
+  expires_in: number;
+  requires_tenant: boolean;
+}
+
+// Tenant types
+export interface Tenant {
+  id: string;
+  name: string;
+  rut_empresa: string;
+  email: string;
+  phone?: string;
+  plan: TenantPlan;
+  status: TenantStatus;
+  created_at: string;
+}
+
+export type TenantPlan = 'basic' | 'professional' | 'enterprise';
+export type TenantStatus = 'active' | 'suspended' | 'cancelled';
+
+export interface CreateTenantData {
+  name: string;
+  rut_empresa: string;
+  email: string;
+  phone?: string;
+  plan?: TenantPlan;
 }
 
 // Product types

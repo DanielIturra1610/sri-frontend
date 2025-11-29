@@ -42,3 +42,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 mv-architecture-agent.md
+
+.vercel
+.env*.local

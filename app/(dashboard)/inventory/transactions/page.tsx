@@ -5,7 +5,7 @@ import { Download, Filter, X, FileText, Calendar, Package, MapPin, User } from '
 import { TransactionService } from '@/services/transactionService';
 import { ProductService } from '@/services/productService';
 import { LocationService } from '@/services/locationService';
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Skeleton, Input, Select } from '@/components/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Badge, Skeleton, Input, NativeSelect as Select } from '@/components/ui';
 import { DataTable } from '@/components/ui/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { transactionTypeLabels, transactionTypeColors } from '@/lib/validations/stock';
