@@ -103,6 +103,22 @@ export class AuthService {
   }
 
   /**
+   * Verify email directly (without token)
+   * Used when email service is not configured - user clicks button to verify
+   */
+  static async verifyEmailDirect(email: string): Promise<{ message: string }> {
+    try {
+      const response = await apiClient.post<ApiResponse<{ message: string }>>(
+        API_ENDPOINTS.AUTH.VERIFY_EMAIL_DIRECT,
+        { email }
+      );
+      return { message: response.data.message || 'Email verified successfully' };
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
    * Resend verification email
    */
   static async resendVerification(email: string): Promise<{ message: string }> {

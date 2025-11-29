@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
     VERIFY_EMAIL: '/auth/verify-email',
+    VERIFY_EMAIL_DIRECT: '/auth/verify-email-direct',
     RESEND_VERIFICATION: '/auth/resend-verification',
   },
 
