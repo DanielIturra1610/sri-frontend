@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'", // TODO: Remove unsafe-inline, use nonce/hash
               "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
-              "connect-src 'self' " + (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
+              "connect-src 'self' " + (process.env.NEXT_PUBLIC_API_URL?.trim() || 'http://localhost:8080'),
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
