@@ -536,3 +536,121 @@ export interface UpdateBackupConfigDTO {
   backup_format?: BackupFormat;
   notification_email?: string;
 }
+
+// Inventory Count types (Physical counting with camera/barcode)
+export type CountStatus = 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+export interface InventoryCount {
+  id: string;
+  location_id: string;
+  status: CountStatus;
+  started_at?: string;
+  completed_at?: string;
+  created_by: string;
+  completed_by?: string;
+  cancelled_by?: string;
+  cancelled_at?: string;
+  cancellation_reason?: string;
+  notes?: string;
+  total_expected: number;
+  total_counted: number;
+  total_discrepancy: number;
+  items_count: number;
+  items_counted: number;
+  progress: number;
+  created_at: string;
+  updated_at: string;
+  location?: Location;
+}
+
+export interface InventoryCountItem {
+  id: string;
+  inventory_count_id: string;
+  product_id: string;
+  stock_id?: string;
+  expected_quantity: number;
+  counted_quantity?: number;
+  discrepancy?: number;
+  scanned_barcode?: string;
+  counted_by?: string;
+  counted_at?: string;
+  notes?: string;
+  is_counted: boolean;
+  has_discrepancy: boolean;
+  created_at: string;
+  updated_at: string;
+  product?: Product;
+}
+
+export interface CreateInventoryCountDTO {
+  location_id: string;
+  notes?: string;
+}
+
+export interface CompleteCountDTO {
+  apply_adjustments: boolean;
+  notes?: string;
+}
+
+export interface CancelCountDTO {
+  reason: string;
+}
+
+export interface ScanBarcodeDTO {
+  barcode: string;
+  quantity: number;
+  notes?: string;
+}
+
+export interface RegisterCountDTO {
+  product_id: string;
+  quantity: number;
+  notes?: string;
+}
+
+export interface UpdateCountItemDTO {
+  quantity: number;
+  notes?: string;
+}
+
+export interface ScanResult {
+  already_counted: boolean;
+  previous_count?: number;
+  counted_at?: string;
+  counted_by?: string;
+  item: InventoryCountItem;
+  product?: Product;
+  discrepancy?: number;
+}
+
+export interface DiscrepancyItem {
+  product_id: string;
+  product_sku: string;
+  product_name: string;
+  product_barcode?: string;
+  expected_quantity: number;
+  counted_quantity: number;
+  discrepancy: number;
+  discrepancy_type: 'shortage' | 'surplus';
+}
+
+export interface CountSummary {
+  id: string;
+  location_name: string;
+  status: string;
+  total_products: number;
+  counted_products: number;
+  pending_products: number;
+  with_discrepancy: number;
+  total_expected: number;
+  total_counted: number;
+  total_discrepancy: number;
+  progress: number;
+}
+
+export interface CountFilters extends PaginationParams {
+  location_id?: string;
+  status?: CountStatus;
+  date_from?: string;
+  date_to?: string;
+}

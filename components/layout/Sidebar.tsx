@@ -20,6 +20,7 @@ import {
   Shield,
   Database,
   ChevronRight,
+  ClipboardList,
 } from "lucide-react";
 import { Can } from "@/components/auth";
 import { PERMISSIONS } from "@/lib/constants/permissions";
@@ -105,6 +106,12 @@ const navigation: NavItem[] = [
         href: "/locations",
         icon: MapPin,
         permission: PERMISSIONS.LOCATIONS_VIEW,
+      },
+      {
+        name: "Conteo Fisico",
+        href: "/counts",
+        icon: ClipboardList,
+        permission: PERMISSIONS.COUNTS_VIEW,
       },
     ],
   },

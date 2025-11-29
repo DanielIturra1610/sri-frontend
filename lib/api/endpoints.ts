@@ -75,6 +75,24 @@ export const API_ENDPOINTS = {
     GET: (id: string) => `/inventory/transactions/${id}`,
   },
 
+  // Inventory - Physical Counts
+  COUNTS: {
+    LIST: '/inventory/counts',
+    CREATE: '/inventory/counts',
+    GET: (id: string) => `/inventory/counts/${id}`,
+    START: (id: string) => `/inventory/counts/${id}/start`,
+    COMPLETE: (id: string) => `/inventory/counts/${id}/complete`,
+    CANCEL: (id: string) => `/inventory/counts/${id}/cancel`,
+    DELETE: (id: string) => `/inventory/counts/${id}`,
+    ITEMS: (id: string) => `/inventory/counts/${id}/items`,
+    PENDING: (id: string) => `/inventory/counts/${id}/pending`,
+    COUNTED: (id: string) => `/inventory/counts/${id}/counted`,
+    SCAN: (id: string) => `/inventory/counts/${id}/scan`,
+    UPDATE_ITEM: (countId: string, itemId: string) => `/inventory/counts/${countId}/items/${itemId}`,
+    DISCREPANCIES: (id: string) => `/inventory/counts/${id}/discrepancies`,
+    SUMMARY: (id: string) => `/inventory/counts/${id}/summary`,
+  },
+
   // Transfers
   TRANSFERS: {
     LIST: '/transfers',

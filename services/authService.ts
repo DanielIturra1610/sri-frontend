@@ -154,6 +154,15 @@ export class AuthService {
       // Store tenant info
       this.setTenant(tenant);
 
+      // Refresh tokens to get new tokens with tenant_id included
+      // This is necessary because the current tokens don't have tenant_id
+      try {
+        await this.refreshToken();
+      } catch (refreshError) {
+        console.warn('Token refresh after tenant creation failed:', refreshError);
+        // Continue anyway - the user can still access, tokens will refresh on next 401
+      }
+
       return { tenant, user };
     } catch (error) {
       throw new Error(handleApiError(error));
