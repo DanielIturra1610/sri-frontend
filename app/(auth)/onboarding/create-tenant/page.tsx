@@ -224,6 +224,28 @@ export default function CreateTenantPage() {
           )}
         </div>
 
+        {/* Address (Optional) */}
+        <div>
+          <label
+            htmlFor="address"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
+            Dirección (Opcional)
+          </label>
+          <input
+            {...register('address')}
+            id="address"
+            type="text"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-colors"
+            placeholder="Av. Principal 123, Santiago"
+          />
+          {errors.address && (
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.address.message}
+            </p>
+          )}
+        </div>
+
         {/* Plan Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">

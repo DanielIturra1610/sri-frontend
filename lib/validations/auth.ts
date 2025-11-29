@@ -56,6 +56,9 @@ export const createTenantSchema = z.object({
   phone: z
     .string()
     .optional(),
+  address: z
+    .string()
+    .optional(),
   plan: z.enum(['basic', 'professional', 'enterprise']).optional(),
 });
 

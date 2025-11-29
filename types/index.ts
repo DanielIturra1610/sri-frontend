@@ -55,6 +55,7 @@ export interface Tenant {
   rut_empresa: string;
   email: string;
   phone?: string;
+  address?: string;
   plan: TenantPlan;
   status: TenantStatus;
   created_at: string;
@@ -68,6 +69,7 @@ export interface CreateTenantData {
   rut_empresa: string;
   email: string;
   phone?: string;
+  address?: string;
   plan?: TenantPlan;
 }
 
