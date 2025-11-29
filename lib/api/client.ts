@@ -1,7 +1,9 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 // API Base URL from environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || 'http://localhost:8080';
+// Ensure /api/v1 suffix is present
+const API_URL = baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
