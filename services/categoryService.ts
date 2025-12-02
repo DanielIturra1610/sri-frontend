@@ -13,10 +13,11 @@ export class CategoryService {
    */
   static async getCategories(): Promise<Category[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Category[]>>(
+      const response = await apiClient.get<ApiResponse<{ categories: Category[]; total: number }>>(
         API_ENDPOINTS.CATEGORIES.LIST
       );
-      return response.data.data || [];
+      // Backend returns { data: { categories: [...], total: N } }
+      return response.data.data?.categories || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

@@ -62,7 +62,8 @@ export default function BulkThresholdsPage() {
       const response = await ProductService.getProducts({
         category_id: selectedCategoryId,
       });
-      setAffectedProducts(response.data.items);
+      // Backend returns { data: { products: [...], pagination: {...} } }
+      setAffectedProducts(response.data?.products || []);
     } catch (error) {
       console.error('Error loading products:', error);
     }

@@ -13,10 +13,11 @@ export class LocationService {
    */
   static async getLocations(): Promise<Location[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Location[]>>(
+      const response = await apiClient.get<ApiResponse<{ locations: Location[]; total: number }>>(
         API_ENDPOINTS.LOCATIONS.LIST
       );
-      return response.data.data || [];
+      // Backend returns { data: { locations: [...], total: N } }
+      return response.data.data?.locations || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

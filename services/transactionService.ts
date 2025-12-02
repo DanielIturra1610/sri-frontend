@@ -29,8 +29,9 @@ export class TransactionService {
         ? `${API_ENDPOINTS.TRANSACTIONS.LIST}?${params.toString()}`
         : API_ENDPOINTS.TRANSACTIONS.LIST;
 
-      const response = await apiClient.get<ApiResponse<Transaction[]>>(url);
-      return response.data.data || [];
+      const response = await apiClient.get<ApiResponse<{ transactions: Transaction[]; total: number }>>(url);
+      // Backend returns { data: { transactions: [...], total: N } }
+      return response.data.data?.transactions || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

@@ -45,7 +45,8 @@ export default function TransactionsPage() {
         ProductService.getProducts({ page_size: 1000 }), // Get all products for filter
         LocationService.getLocations(), // Get all locations for filter
       ]);
-      setProducts(productsResponse.data.items || []);
+      // Backend returns { data: { products: [...], pagination: {...} } }
+      setProducts(productsResponse.data?.products || []);
       setLocations(locationsData || []);
     } catch (error: any) {
       console.error('Error loading initial data:', error);

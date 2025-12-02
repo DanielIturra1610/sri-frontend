@@ -114,7 +114,9 @@ export class NotificationService {
         sort_by: 'created_at',
         sort_order: 'desc',
       });
-      return response.data.items;
+      // Backend returns notifications array directly in data
+      const notifications = Array.isArray(response.data) ? response.data : [];
+      return notifications;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

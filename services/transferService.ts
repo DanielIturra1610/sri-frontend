@@ -13,10 +13,11 @@ export class TransferService {
    */
   static async getTransfers(): Promise<Transfer[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Transfer[]>>(
+      const response = await apiClient.get<ApiResponse<{ transfers: Transfer[]; total: number }>>(
         API_ENDPOINTS.TRANSFERS.LIST
       );
-      return response.data.data || [];
+      // Backend returns { data: { transfers: [...], total: N } }
+      return response.data.data?.transfers || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

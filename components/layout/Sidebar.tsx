@@ -111,7 +111,7 @@ const navigation: NavItem[] = [
         name: "Conteo Fisico",
         href: "/counts",
         icon: ClipboardList,
-        permission: PERMISSIONS.COUNTS_VIEW,
+        permission: PERMISSIONS.INVENTORY_VIEW,
       },
     ],
   },
