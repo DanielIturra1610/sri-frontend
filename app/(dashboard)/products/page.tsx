@@ -43,10 +43,10 @@ export default function ProductsPage() {
         sort_order: 'desc',
       });
 
-      // Backend returns { data: { products: [...], pagination: {...} } }
-      setProducts(response.data?.products || []);
-      setTotalItems(response.data?.pagination?.total || 0);
-      setTotalPages(response.data?.pagination?.total_pages || 0);
+      // Backend returns { data: { items: [...], total: number, ... } }
+      setProducts(response.data?.items || []);
+      setTotalItems(response.data?.total || 0);
+      setTotalPages(response.data?.total_pages || 0);
     } catch (error) {
       toast.error('Error al cargar productos');
       console.error('Error loading products:', error);
