@@ -49,8 +49,8 @@ export default function ThresholdsConfigPage() {
     try {
       setLoading(true);
       const response = await ProductService.getProducts();
-      // Backend returns { data: { products: [...], pagination: {...} } }
-      const allProducts = response.data?.products || [];
+      // Backend returns { data: { items: [...], total: number, ... } }
+      const allProducts = response.data?.items || [];
 
       setProducts(allProducts);
       calculateStats(allProducts);
