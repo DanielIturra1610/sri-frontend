@@ -30,7 +30,7 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await UserService.getUsers({
+      const usersData = await UserService.getUsers({
         search: search || undefined,
         role: roleFilter !== 'all' ? (roleFilter as UserRole) : undefined,
         is_active: statusFilter === 'all' ? undefined : statusFilter === 'active',
@@ -40,9 +40,11 @@ export default function UsersPage() {
         sort_order: 'desc',
       });
 
-      setUsers(response.data.items);
-      setTotalItems(response.data.total);
-      setTotalPages(response.data.total_pages);
+      // Filter client-side since backend doesn't support full pagination yet
+      const filteredUsers = Array.isArray(usersData) ? usersData : [];
+      setUsers(filteredUsers);
+      setTotalItems(filteredUsers.length);
+      setTotalPages(Math.ceil(filteredUsers.length / pageSize) || 1);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar usuarios');
       console.error('Error loading users:', error);

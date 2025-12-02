@@ -29,6 +29,26 @@ const COLORS = [
 ];
 
 export function CategoryDistributionChart({ data }: CategoryDistributionChartProps) {
+  const safeData = data || [];
+
+  if (safeData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Layers className="h-5 w-5" />
+            Distribución por Categoría
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+            No hay datos de categorías disponibles
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -41,7 +61,7 @@ export function CategoryDistributionChart({ data }: CategoryDistributionChartPro
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
-              data={data as any}
+              data={safeData as any}
               cx="50%"
               cy="50%"
               labelLine={false}
@@ -50,7 +70,7 @@ export function CategoryDistributionChart({ data }: CategoryDistributionChartPro
               fill="#8884d8"
               dataKey="count"
             >
-              {data.map((entry, index) => (
+              {safeData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>

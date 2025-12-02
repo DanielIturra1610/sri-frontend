@@ -13,10 +13,10 @@ export class StockService {
    */
   static async getAllStock(): Promise<Stock[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Stock[]>>(
+      const response = await apiClient.get<ApiResponse<{ stock: Stock[]; total: number }>>(
         API_ENDPOINTS.STOCK.LIST
       );
-      return response.data.data || [];
+      return response.data.data?.stock || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -27,10 +27,10 @@ export class StockService {
    */
   static async getStockByProduct(productId: string): Promise<Stock[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Stock[]>>(
+      const response = await apiClient.get<ApiResponse<{ stock: Stock[]; total: number }>>(
         API_ENDPOINTS.STOCK.GET_BY_PRODUCT(productId)
       );
-      return response.data.data || [];
+      return response.data.data?.stock || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -41,10 +41,10 @@ export class StockService {
    */
   static async getStockByLocation(locationId: string): Promise<Stock[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Stock[]>>(
+      const response = await apiClient.get<ApiResponse<{ stock: Stock[]; total: number }>>(
         API_ENDPOINTS.STOCK.GET_BY_LOCATION(locationId)
       );
-      return response.data.data || [];
+      return response.data.data?.stock || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -70,10 +70,10 @@ export class StockService {
    */
   static async getTransactions(): Promise<Transaction[]> {
     try {
-      const response = await apiClient.get<ApiResponse<Transaction[]>>(
+      const response = await apiClient.get<ApiResponse<{ transactions: Transaction[]; total: number }>>(
         API_ENDPOINTS.TRANSACTIONS.LIST
       );
-      return response.data.data || [];
+      return response.data.data?.transactions || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

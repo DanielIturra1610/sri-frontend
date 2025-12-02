@@ -1,4 +1,4 @@
-import apiClient, { ApiResponse, PaginatedResponse, handleApiError } from '@/lib/api/client';
+import apiClient, { ApiResponse, handleApiError } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import type { User, UserRole } from '@/types';
 
@@ -53,7 +53,7 @@ export class UserService {
   /**
    * Get all users with optional filters
    */
-  static async getUsers(filters?: UserFilters): Promise<PaginatedResponse<User>> {
+  static async getUsers(filters?: UserFilters): Promise<User[]> {
     try {
       const params = new URLSearchParams();
 
@@ -69,8 +69,8 @@ export class UserService {
         ? `${API_ENDPOINTS.USERS.LIST}?${params.toString()}`
         : API_ENDPOINTS.USERS.LIST;
 
-      const response = await apiClient.get<PaginatedResponse<User>>(url);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<{ users: User[]; total: number }>>(url);
+      return response.data.data?.users || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

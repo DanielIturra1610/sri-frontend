@@ -1,4 +1,4 @@
-import apiClient, { ApiResponse, PaginatedResponse, handleApiError } from '@/lib/api/client';
+import apiClient, { ApiResponse, handleApiError } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import type {
   Backup,
@@ -18,7 +18,7 @@ export class BackupService {
   /**
    * Get all backups with optional filters
    */
-  static async getBackups(filters?: BackupFilters): Promise<PaginatedResponse<Backup>> {
+  static async getBackups(filters?: BackupFilters): Promise<Backup[]> {
     try {
       const params = new URLSearchParams();
 
@@ -35,8 +35,8 @@ export class BackupService {
         ? `${API_ENDPOINTS.BACKUPS.LIST}?${params.toString()}`
         : API_ENDPOINTS.BACKUPS.LIST;
 
-      const response = await apiClient.get<PaginatedResponse<Backup>>(url);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<Backup[]>>(url);
+      return response.data.data || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

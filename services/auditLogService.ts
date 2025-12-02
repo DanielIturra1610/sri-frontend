@@ -1,4 +1,4 @@
-import apiClient, { ApiResponse, PaginatedResponse, handleApiError } from '@/lib/api/client';
+import apiClient, { ApiResponse, handleApiError } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import type { AuditLog, AuditLogFilters } from '@/types';
 
@@ -11,7 +11,7 @@ export class AuditLogService {
   /**
    * Get all audit logs with optional filters
    */
-  static async getAuditLogs(filters?: AuditLogFilters): Promise<PaginatedResponse<AuditLog>> {
+  static async getAuditLogs(filters?: AuditLogFilters): Promise<AuditLog[]> {
     try {
       const params = new URLSearchParams();
 
@@ -31,8 +31,8 @@ export class AuditLogService {
         ? `${API_ENDPOINTS.AUDIT_LOGS.LIST}?${params.toString()}`
         : API_ENDPOINTS.AUDIT_LOGS.LIST;
 
-      const response = await apiClient.get<PaginatedResponse<AuditLog>>(url);
-      return response.data;
+      const response = await apiClient.get<ApiResponse<AuditLog[]>>(url);
+      return response.data.data || [];
     } catch (error) {
       throw new Error(handleApiError(error));
     }

@@ -45,7 +45,7 @@ export default function BackupsPage() {
   const loadBackups = async () => {
     try {
       setIsLoading(true);
-      const response = await BackupService.getBackups({
+      const backupsData = await BackupService.getBackups({
         backup_type: typeFilter as BackupType | undefined,
         status: statusFilter as BackupStatus | undefined,
         page,
@@ -54,9 +54,10 @@ export default function BackupsPage() {
         sort_order: 'desc',
       });
 
-      setBackups(response.data.items);
-      setTotalItems(response.data.total);
-      setTotalPages(response.data.total_pages);
+      const filteredBackups = Array.isArray(backupsData) ? backupsData : [];
+      setBackups(filteredBackups);
+      setTotalItems(filteredBackups.length);
+      setTotalPages(Math.ceil(filteredBackups.length / pageSize) || 1);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar respaldos');
       console.error('Error loading backups:', error);

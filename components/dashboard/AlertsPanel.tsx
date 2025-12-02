@@ -20,10 +20,11 @@ interface AlertsPanelProps {
 
 export function AlertsPanel({ stockData }: AlertsPanelProps) {
   const router = useRouter();
+  const safeStockData = Array.isArray(stockData) ? stockData : [];
 
   // Filter critical and low stock items
-  const criticalStock = stockData.filter((item) => item.quantity === 0).slice(0, 5);
-  const lowStock = stockData
+  const criticalStock = safeStockData.filter((item) => item.quantity === 0).slice(0, 5);
+  const lowStock = safeStockData
     .filter(
       (item) =>
         item.quantity > 0 &&

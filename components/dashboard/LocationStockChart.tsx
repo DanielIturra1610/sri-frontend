@@ -20,6 +20,26 @@ interface LocationStockChartProps {
 }
 
 export function LocationStockChart({ data }: LocationStockChartProps) {
+  const safeData = data || [];
+
+  if (safeData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Warehouse className="h-5 w-5" />
+            Stock por Ubicación
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+            No hay datos de ubicaciones disponibles
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -30,7 +50,7 @@ export function LocationStockChart({ data }: LocationStockChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
+          <BarChart data={safeData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300 dark:stroke-gray-700" />
             <XAxis
               dataKey="location"

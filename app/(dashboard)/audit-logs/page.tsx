@@ -44,7 +44,7 @@ export default function AuditLogsPage() {
   const loadAuditLogs = async () => {
     try {
       setIsLoading(true);
-      const response = await AuditLogService.getAuditLogs({
+      const logsData = await AuditLogService.getAuditLogs({
         search: search || undefined,
         user_id: userFilter || undefined,
         action: actionFilter as AuditAction | undefined,
@@ -57,9 +57,10 @@ export default function AuditLogsPage() {
         sort_order: 'desc',
       });
 
-      setLogs(response.data.items);
-      setTotalItems(response.data.total);
-      setTotalPages(response.data.total_pages);
+      const filteredLogs = Array.isArray(logsData) ? logsData : [];
+      setLogs(filteredLogs);
+      setTotalItems(filteredLogs.length);
+      setTotalPages(Math.ceil(filteredLogs.length / pageSize) || 1);
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar logs de auditoría');
       console.error('Error loading audit logs:', error);
@@ -71,8 +72,8 @@ export default function AuditLogsPage() {
   // Load users for filter
   const loadUsers = async () => {
     try {
-      const response = await UserService.getUsers();
-      setUsers(response.data.items);
+      const usersData = await UserService.getUsers();
+      setUsers(Array.isArray(usersData) ? usersData : []);
     } catch (error) {
       console.error('Error loading users:', error);
     }

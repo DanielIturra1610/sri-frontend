@@ -20,6 +20,26 @@ interface StockTrendChartProps {
 }
 
 export function StockTrendChart({ data }: StockTrendChartProps) {
+  const safeData = data || [];
+
+  if (safeData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
+            Tendencia de Movimientos de Stock
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+            No hay datos de movimientos disponibles
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -30,7 +50,7 @@ export function StockTrendChart({ data }: StockTrendChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
+          <LineChart data={safeData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-gray-300 dark:stroke-gray-700" />
             <XAxis
               dataKey="date"

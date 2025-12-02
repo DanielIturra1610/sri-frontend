@@ -47,18 +47,42 @@ export default function DashboardPage() {
     try {
       setIsLoading(true);
 
-      // Load all data in parallel
-      const [metricsData, chartsData, stock, transactions] = await Promise.all([
+      // Load all data in parallel, handling individual failures gracefully
+      const [metricsResult, chartsResult, stockResult, transactionsResult] = await Promise.allSettled([
         DashboardService.getMetrics(),
         DashboardService.getCharts({ period }),
         StockService.getAllStock(),
         StockService.getTransactions(),
       ]);
 
-      setMetrics(metricsData);
-      setCharts(chartsData);
-      setStockData(stock);
-      setRecentTransactions(transactions.slice(0, 10));
+      // Set metrics if available
+      if (metricsResult.status === 'fulfilled') {
+        setMetrics(metricsResult.value);
+      } else {
+        console.error('Error loading metrics:', metricsResult.reason);
+      }
+
+      // Set charts if available
+      if (chartsResult.status === 'fulfilled') {
+        setCharts(chartsResult.value);
+      } else {
+        console.error('Error loading charts:', chartsResult.reason);
+      }
+
+      // Set stock if available
+      if (stockResult.status === 'fulfilled') {
+        setStockData(stockResult.value || []);
+      } else {
+        console.error('Error loading stock:', stockResult.reason);
+      }
+
+      // Set transactions if available
+      if (transactionsResult.status === 'fulfilled') {
+        const transactions = transactionsResult.value || [];
+        setRecentTransactions(Array.isArray(transactions) ? transactions.slice(0, 10) : []);
+      } else {
+        console.error('Error loading transactions:', transactionsResult.reason);
+      }
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar datos del dashboard');
       console.error('Error loading dashboard data:', error);
