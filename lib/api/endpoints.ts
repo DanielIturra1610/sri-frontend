@@ -41,6 +41,7 @@ export const API_ENDPOINTS = {
     GET: (id: string) => `/products/${id}`,
     UPDATE: (id: string) => `/products/${id}`,
     DELETE: (id: string) => `/products/${id}`,
+    LOOKUP: (barcode: string) => `/products/lookup/${barcode}`,
   },
 
   // Categories

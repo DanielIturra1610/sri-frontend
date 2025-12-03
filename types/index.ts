@@ -276,6 +276,27 @@ export interface ProductFilters extends PaginationParams {
   is_active?: boolean;
 }
 
+// Product Lookup types (Open Food Facts integration)
+export interface ProductSuggestion {
+  barcode: string;
+  name: string;
+  brand: string;
+  category: string;
+  image_url: string;
+  quantity: string;
+  description: string;
+}
+
+export interface ProductLookupResponse {
+  success: boolean;
+  source: 'local' | 'open_food_facts';
+  message: string;
+  data?: {
+    product?: Product;
+    suggestion?: ProductSuggestion;
+  };
+}
+
 export interface StockFilters extends PaginationParams {
   product_id?: string;
   location_id?: string;

@@ -1,6 +1,6 @@
 import apiClient, { ApiResponse, PaginatedResponse, handleApiError } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import type { Product, CreateProductDTO, ProductFilters } from '@/types';
+import type { Product, CreateProductDTO, ProductFilters, ProductLookupResponse } from '@/types';
 
 /**
  * Product Service
@@ -83,6 +83,21 @@ export class ProductService {
   static async deleteProduct(id: string): Promise<void> {
     try {
       await apiClient.delete(API_ENDPOINTS.PRODUCTS.DELETE(id));
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Lookup product by barcode (local DB + Open Food Facts)
+   * Returns existing product if found locally, or suggestion from Open Food Facts
+   */
+  static async lookupBarcode(barcode: string): Promise<ProductLookupResponse> {
+    try {
+      const response = await apiClient.get<ProductLookupResponse>(
+        API_ENDPOINTS.PRODUCTS.LOOKUP(barcode)
+      );
+      return response.data;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

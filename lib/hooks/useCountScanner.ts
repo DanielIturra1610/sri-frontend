@@ -3,7 +3,8 @@
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CountService } from '@/services/countService';
-import type { ScanResult, InventoryCountItem } from '@/types';
+import { ProductService } from '@/services/productService';
+import type { ScanResult, InventoryCountItem, ProductSuggestion } from '@/types';
 import toast from 'react-hot-toast';
 
 export interface ScanState {
@@ -27,14 +28,17 @@ export interface UseCountScannerOptions {
   onScanSuccess?: (result: ScanResult) => void;
   onScanError?: (error: Error) => void;
   onAlreadyCounted?: (result: ScanResult) => void;
+  onProductSuggestion?: (suggestion: ProductSuggestion, barcode: string) => void;
   defaultQuantity?: number;
 }
 
 export interface UseCountScannerReturn {
   scanBarcode: (barcode: string, quantity?: number, notes?: string) => Promise<ScanResult | null>;
+  lookupBarcode: (barcode: string) => Promise<void>;
   registerManual: (productId: string, quantity: number, notes?: string) => Promise<InventoryCountItem | null>;
   updateItemCount: (itemId: string, quantity: number, notes?: string) => Promise<InventoryCountItem | null>;
   isScanning: boolean;
+  isLookingUp: boolean;
   lastScan: ScanResult | null;
   scanHistory: ScanHistoryItem[];
   error: string | null;
@@ -48,6 +52,7 @@ export function useCountScanner({
   onScanSuccess,
   onScanError,
   onAlreadyCounted,
+  onProductSuggestion,
   defaultQuantity = 1,
 }: UseCountScannerOptions): UseCountScannerReturn {
   const queryClient = useQueryClient();
@@ -55,6 +60,7 @@ export function useCountScanner({
   const [lastScan, setLastScan] = useState<ScanResult | null>(null);
   const [scanHistory, setScanHistory] = useState<ScanHistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isLookingUp, setIsLookingUp] = useState(false);
 
   // Scan barcode mutation
   const scanMutation = useMutation({
@@ -98,23 +104,49 @@ export function useCountScanner({
         onScanSuccess?.(result);
       }
     },
-    onError: (err: Error) => {
+    onError: (err: Error, variables) => {
       const errorMessage = err.message;
 
-      if (errorMessage === 'BARCODE_NOT_FOUND') {
-        setError('Código de barras no encontrado en el sistema');
-        toast.error('Código de barras no encontrado');
+      if (errorMessage === 'BARCODE_NOT_FOUND' || errorMessage.includes('barcode not found') || errorMessage.includes('producto no encontrado')) {
+        // Try to lookup barcode in Open Food Facts
+        lookupBarcode(variables.barcode);
       } else if (errorMessage === 'COUNT_NOT_IN_PROGRESS') {
-        setError('La sesión de conteo no está en progreso');
-        toast.error('La sesión de conteo no está activa');
+        setError('La sesion de conteo no esta en progreso');
+        toast.error('La sesion de conteo no esta activa');
+        onScanError?.(err);
       } else {
         setError(errorMessage);
         toast.error(errorMessage);
+        onScanError?.(err);
       }
-
-      onScanError?.(err);
     },
   });
+
+  // Lookup barcode in Open Food Facts
+  const lookupBarcode = useCallback(async (barcode: string) => {
+    try {
+      setIsLookingUp(true);
+      setError(null);
+
+      const response = await ProductService.lookupBarcode(barcode);
+
+      if (response.success && response.source === 'open_food_facts' && response.data?.suggestion) {
+        toast.success('Producto encontrado en Open Food Facts');
+        onProductSuggestion?.(response.data.suggestion, barcode);
+      } else if (response.success && response.source === 'local' && response.data?.product) {
+        // This shouldn't happen since we already tried local, but handle it anyway
+        toast.success('Producto encontrado localmente');
+      } else {
+        setError('Codigo de barras no encontrado en ninguna base de datos');
+        toast.error('Codigo de barras no encontrado');
+      }
+    } catch (err) {
+      setError('Codigo de barras no encontrado');
+      toast.error('Codigo de barras no encontrado en ninguna base de datos');
+    } finally {
+      setIsLookingUp(false);
+    }
+  }, [onProductSuggestion]);
 
   // Register manual count mutation
   const registerMutation = useMutation({
@@ -242,9 +274,11 @@ export function useCountScanner({
 
   return {
     scanBarcode,
+    lookupBarcode,
     registerManual,
     updateItemCount,
     isScanning: scanMutation.isPending || registerMutation.isPending || updateMutation.isPending,
+    isLookingUp,
     lastScan,
     scanHistory,
     error,

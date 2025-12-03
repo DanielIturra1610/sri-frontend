@@ -14,8 +14,10 @@ import {
   Minus,
 } from 'lucide-react';
 import { CountService } from '@/services/countService';
+import { ProductService } from '@/services/productService';
 import { useCountScanner } from '@/lib/hooks/useCountScanner';
 import { BarcodeScanner } from '@/components/scanner/BarcodeScanner';
+import { ProductSuggestionModal } from '@/components/inventory/ProductSuggestionModal';
 import {
   Button,
   Card,
@@ -33,7 +35,7 @@ import {
   formatDiscrepancy,
   getDiscrepancyColor,
 } from '@/lib/validations/count';
-import type { InventoryCount, CountSummary, ScanResult } from '@/types';
+import type { InventoryCount, CountSummary, ScanResult, ProductSuggestion, CreateProductDTO } from '@/types';
 import toast from 'react-hot-toast';
 
 export default function CountScanPage() {
@@ -48,10 +50,15 @@ export default function CountScanPage() {
   const [showHistory, setShowHistory] = useState(false);
   const [lastScanResult, setLastScanResult] = useState<ScanResult | null>(null);
 
+  // Open Food Facts integration state
+  const [showSuggestionModal, setShowSuggestionModal] = useState(false);
+  const [currentSuggestion, setCurrentSuggestion] = useState<ProductSuggestion | null>(null);
+
   // Use the count scanner hook
   const {
     scanBarcode,
     isScanning: isScanningApi,
+    isLookingUp,
     scanHistory,
     error: scanError,
     clearError,
@@ -63,6 +70,10 @@ export default function CountScanPage() {
     },
     onAlreadyCounted: (result) => {
       setLastScanResult(result);
+    },
+    onProductSuggestion: (suggestion) => {
+      setCurrentSuggestion(suggestion);
+      setShowSuggestionModal(true);
     },
   });
 
@@ -117,6 +128,18 @@ export default function CountScanPage() {
   // Quantity controls
   const incrementQuantity = () => setQuantity((q) => q + 1);
   const decrementQuantity = () => setQuantity((q) => Math.max(1, q - 1));
+
+  // Handle create product from Open Food Facts suggestion
+  const handleCreateProduct = async (data: CreateProductDTO) => {
+    try {
+      await ProductService.createProduct(data);
+      toast.success('Producto creado exitosamente');
+      setShowSuggestionModal(false);
+      setCurrentSuggestion(null);
+    } catch (error: any) {
+      throw new Error(error.message || 'Error al crear el producto');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -474,17 +497,30 @@ export default function CountScanPage() {
       </div>
 
       {/* Loading Overlay */}
-      {isScanningApi && (
+      {(isScanningApi || isLookingUp) && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-64">
             <CardContent className="py-6 text-center">
               <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-4" />
               <p className="text-gray-600 dark:text-gray-400">
-                Procesando escaneo...
+                {isLookingUp ? 'Buscando en Open Food Facts...' : 'Procesando escaneo...'}
               </p>
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Product Suggestion Modal (Open Food Facts) */}
+      {currentSuggestion && (
+        <ProductSuggestionModal
+          isOpen={showSuggestionModal}
+          onClose={() => {
+            setShowSuggestionModal(false);
+            setCurrentSuggestion(null);
+          }}
+          suggestion={currentSuggestion}
+          onCreateProduct={handleCreateProduct}
+        />
       )}
     </div>
   );
