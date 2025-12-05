@@ -38,10 +38,11 @@ export class ProductService {
    */
   static async getProduct(id: string): Promise<Product> {
     try {
-      const response = await apiClient.get<ApiResponse<Product>>(
+      const response = await apiClient.get<ApiResponse<{ product: Product }>>(
         API_ENDPOINTS.PRODUCTS.GET(id)
       );
-      return response.data.data!;
+      // Backend returns { data: { product: {...} } }
+      return response.data.data?.product ?? response.data.data as unknown as Product;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -52,11 +53,12 @@ export class ProductService {
    */
   static async createProduct(data: CreateProductDTO): Promise<Product> {
     try {
-      const response = await apiClient.post<ApiResponse<Product>>(
+      const response = await apiClient.post<ApiResponse<{ product: Product }>>(
         API_ENDPOINTS.PRODUCTS.CREATE,
         data
       );
-      return response.data.data!;
+      // Backend returns { data: { product: {...} } }
+      return response.data.data?.product ?? response.data.data as unknown as Product;
     } catch (error) {
       throw new Error(handleApiError(error));
     }
@@ -67,11 +69,12 @@ export class ProductService {
    */
   static async updateProduct(id: string, data: Partial<CreateProductDTO>): Promise<Product> {
     try {
-      const response = await apiClient.patch<ApiResponse<Product>>(
+      const response = await apiClient.patch<ApiResponse<{ product: Product }>>(
         API_ENDPOINTS.PRODUCTS.UPDATE(id),
         data
       );
-      return response.data.data!;
+      // Backend returns { data: { product: {...} } }
+      return response.data.data?.product ?? response.data.data as unknown as Product;
     } catch (error) {
       throw new Error(handleApiError(error));
     }

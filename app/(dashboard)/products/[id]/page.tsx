@@ -282,7 +282,7 @@ export default function ProductDetailPage() {
                     Precio de Costo
                   </label>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${product.cost_price.toLocaleString('es-CL')}
+                    ${(product.cost_price ?? 0).toLocaleString('es-CL')}
                   </p>
                 </div>
 
@@ -291,7 +291,7 @@ export default function ProductDetailPage() {
                     Precio de Venta
                   </label>
                   <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    ${product.sale_price.toLocaleString('es-CL')}
+                    ${(product.sale_price ?? 0).toLocaleString('es-CL')}
                   </p>
                 </div>
 
@@ -300,7 +300,9 @@ export default function ProductDetailPage() {
                     Margen
                   </label>
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {(((product.sale_price - product.cost_price) / product.cost_price) * 100).toFixed(1)}%
+                    {product.cost_price && product.cost_price > 0
+                      ? (((product.sale_price - product.cost_price) / product.cost_price) * 100).toFixed(1)
+                      : 0}%
                   </p>
                 </div>
               </div>
@@ -376,13 +378,13 @@ export default function ProductDetailPage() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Creado</span>
                 <span className="text-sm text-gray-900 dark:text-white">
-                  {new Date(product.created_at).toLocaleDateString('es-CL')}
+                  {product.created_at ? new Date(product.created_at).toLocaleDateString('es-CL') : '-'}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Actualizado</span>
                 <span className="text-sm text-gray-900 dark:text-white">
-                  {new Date(product.updated_at).toLocaleDateString('es-CL')}
+                  {product.updated_at ? new Date(product.updated_at).toLocaleDateString('es-CL') : '-'}
                 </span>
               </div>
             </CardContent>
@@ -416,8 +418,10 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {stock.map((item) => {
+                  {stock.map((item: any) => {
                     const status = getStockStatus(item);
+                    // Handle both nested (location.name) and flat (location_name) formats
+                    const locationName = item.location_name || item.location?.name || 'Sin ubicación';
                     return (
                       <div
                         key={item.id}
@@ -425,7 +429,7 @@ export default function ProductDetailPage() {
                       >
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 dark:text-white">
-                            {item.location_name}
+                            {locationName}
                           </p>
                           {item.last_movement_at && (
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -475,41 +479,51 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {transactions.map((transaction) => (
-                    <div
-                      key={transaction.id}
-                      className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <Badge variant={transactionTypeColors[transaction.transaction_type]}>
-                          {transactionTypeLabels[transaction.transaction_type] || transaction.transaction_type}
-                        </Badge>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {new Date(transaction.created_at).toLocaleDateString('es-CL')}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
-                            {transaction.location_name}
-                          </p>
-                          {transaction.notes && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              {transaction.notes}
+                  {transactions.map((transaction: any) => {
+                    // Handle both nested and flat formats
+                    const locationName = transaction.location_name || transaction.location?.name || 'Sin ubicación';
+                    const notes = transaction.notes || transaction.reason;
+                    const prevQty = transaction.previous_quantity ?? transaction.quantity_before ?? 0;
+                    const newQty = transaction.new_quantity ?? transaction.quantity_after ?? 0;
+                    // Handle both lowercase (frontend) and uppercase (backend) types
+                    const txType = (transaction.transaction_type || transaction.type || '').toLowerCase();
+
+                    return (
+                      <div
+                        key={transaction.id}
+                        className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <Badge variant={transactionTypeColors[txType as keyof typeof transactionTypeColors] || 'default'}>
+                            {transactionTypeLabels[txType as keyof typeof transactionTypeLabels] || txType || 'Desconocido'}
+                          </Badge>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                            {transaction.created_at ? new Date(transaction.created_at).toLocaleDateString('es-CL') : '-'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                              {locationName}
                             </p>
-                          )}
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                            {transaction.quantity > 0 ? '+' : ''}{transaction.quantity}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {transaction.previous_quantity} → {transaction.new_quantity}
-                          </p>
+                            {notes && (
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {notes}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {transaction.quantity > 0 ? '+' : ''}{transaction.quantity}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {prevQty} → {newQty}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
