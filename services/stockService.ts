@@ -1,6 +1,21 @@
 import apiClient, { ApiResponse, handleApiError } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import type { Stock, Transaction, CreateTransactionDTO } from '@/types';
+import type { Stock, Transaction } from '@/types';
+
+// DTO for creating new stock record
+export interface CreateStockDTO {
+  product_id: string;
+  location_id: string;
+  quantity?: number;
+  minimum_stock?: number;
+  maximum_stock?: number;
+}
+
+// DTO for adjusting existing stock
+export interface AdjustStockDTO {
+  quantity: number;
+  reason: string;
+}
 
 /**
  * Stock Service
@@ -51,17 +66,64 @@ export class StockService {
   }
 
   /**
-   * Create stock adjustment/transaction
+   * Create new stock record (for initial stock)
    */
-  static async createTransaction(data: CreateTransactionDTO): Promise<Transaction> {
+  static async createStock(data: CreateStockDTO): Promise<Stock> {
     try {
-      const response = await apiClient.post<ApiResponse<Transaction>>(
-        API_ENDPOINTS.STOCK.ADJUST,
+      const response = await apiClient.post<ApiResponse<Stock>>(
+        API_ENDPOINTS.STOCK.CREATE,
         data
       );
       return response.data.data!;
     } catch (error) {
       throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Adjust stock quantity (for existing stock records)
+   */
+  static async adjustStock(stockId: string, data: AdjustStockDTO): Promise<Stock> {
+    try {
+      const response = await apiClient.post<ApiResponse<Stock>>(
+        API_ENDPOINTS.STOCK.ADJUST(stockId),
+        data
+      );
+      return response.data.data!;
+    } catch (error) {
+      throw new Error(handleApiError(error));
+    }
+  }
+
+  /**
+   * Create or adjust stock - handles both scenarios
+   * If stock record exists for product+location, adjust it
+   * If not, create new stock record
+   */
+  static async createOrAdjustStock(
+    productId: string,
+    locationId: string,
+    quantity: number,
+    reason: string
+  ): Promise<Stock> {
+    try {
+      // First, check if stock record exists
+      const existingStock = await this.getStockByProduct(productId);
+      const stockRecord = existingStock.find(s => s.location_id === locationId);
+
+      if (stockRecord) {
+        // Adjust existing stock
+        return await this.adjustStock(stockRecord.id, { quantity, reason });
+      } else {
+        // Create new stock record
+        return await this.createStock({
+          product_id: productId,
+          location_id: locationId,
+          quantity,
+        });
+      }
+    } catch (error) {
+      throw error;
     }
   }
 

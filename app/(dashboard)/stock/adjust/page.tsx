@@ -47,7 +47,9 @@ export default function StockAdjustPage() {
         ProductService.getProducts(),
         LocationService.getLocations(),
       ]);
-      setProducts(productsResponse.data.items || []);
+      // Backend returns { data: { products: [...] } } or { data: { items: [...] } }
+      const productsData = productsResponse as any;
+      setProducts(productsData.data?.products || productsData.data?.items || []);
       setLocations(locationsData.filter((loc) => loc.is_active));
     } catch (error: any) {
       toast.error(error.message || 'Error al cargar datos');
@@ -103,8 +105,17 @@ export default function StockAdjustPage() {
   const onSubmit = async (data: StockAdjustmentFormData) => {
     try {
       setIsSubmitting(true);
-      await StockService.createTransaction(data);
-      toast.success('Ajuste de stock realizado exitosamente');
+
+      // Use createOrAdjustStock which handles both new stock and adjustments
+      const reason = data.notes || `${transactionTypeLabels[data.transaction_type]} - Cantidad: ${data.quantity}`;
+      await StockService.createOrAdjustStock(
+        data.product_id,
+        data.location_id,
+        data.quantity,
+        reason
+      );
+
+      toast.success('Stock actualizado exitosamente');
       router.push('/stock');
     } catch (error: any) {
       toast.error(error.message || 'Error al ajustar stock');

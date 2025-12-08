@@ -65,9 +65,13 @@ export const API_ENDPOINTS = {
   // Inventory - Stock
   STOCK: {
     LIST: '/inventory/stock',
+    CREATE: '/inventory/stock',
+    GET: (id: string) => `/inventory/stock/${id}`,
     GET_BY_PRODUCT: (productId: string) => `/inventory/stock/product/${productId}`,
     GET_BY_LOCATION: (locationId: string) => `/inventory/stock/location/${locationId}`,
-    ADJUST: '/inventory/transactions',
+    ADJUST: (stockId: string) => `/inventory/stock/${stockId}/adjust`,
+    RESERVE: (stockId: string) => `/inventory/stock/${stockId}/reserve`,
+    RELEASE: (stockId: string) => `/inventory/stock/${stockId}/release`,
   },
 
   // Inventory - Transactions
