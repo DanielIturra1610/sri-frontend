@@ -412,7 +412,7 @@ export function BarcodeScanner({
             <div className="text-center text-white">
               <Camera className="mx-auto mb-2 h-12 w-12" />
               <p className="text-sm">Cámara pausada</p>
-              <p className="text-xs text-gray-400 mt-1">Presiona "Escanear" para iniciar</p>
+              <p className="text-xs text-gray-400 mt-1">Presiona el botón Escanear para iniciar</p>
             </div>
           </div>
         )}
