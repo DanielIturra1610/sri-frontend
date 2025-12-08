@@ -32,9 +32,10 @@ const nextConfig: NextConfig = {
             value: 'strict-origin-when-cross-origin',
           },
           // Control which features and APIs can be used
+          // camera=(self) allows camera access for barcode scanning
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
+            value: 'camera=(self), microphone=(), geolocation=(self), interest-cohort=()',
           },
           // Content Security Policy (CSP)
           {
