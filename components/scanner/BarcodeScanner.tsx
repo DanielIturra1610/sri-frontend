@@ -367,41 +367,86 @@ export function BarcodeScanner({
             <div className="text-center text-white max-w-xs">
               <CameraOff className="mx-auto mb-2 h-12 w-12 text-destructive" />
               <p className="text-sm mb-2">{error}</p>
-              {hasPermission === false && (
-                <p className="text-xs text-gray-400 mb-3">
-                  Si el navegador bloqueó el permiso, toca el ícono de candado en la barra de direcciones y habilita la cámara.
-                </p>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-2"
-                onClick={async () => {
-                  setError(null);
-                  setHasPermission(null);
-                  // Force request permission again
-                  try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                      video: { facingMode: 'environment' },
-                    });
-                    stream.getTracks().forEach(track => track.stop());
-                    setHasPermission(true);
-                    // Re-fetch cameras and start
-                    await getCameras();
-                    startScanning();
-                  } catch (err: any) {
-                    console.error('Permission request failed:', err);
-                    if (err.name === 'NotAllowedError') {
-                      setHasPermission(false);
-                      setError('Permiso denegado. Habilita la cámara en la configuración del navegador.');
-                    } else {
-                      setError('Error: ' + err.message);
+              <div className="text-xs text-gray-400 mb-3 space-y-1">
+                <p>Para habilitar la cámara manualmente:</p>
+                <p><strong>Chrome:</strong> Toca el candado 🔒 → Permisos → Cámara → Permitir</p>
+                <p><strong>Safari:</strong> Configuración → Safari → Cámara</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    setError(null);
+                    setHasPermission(null);
+
+                    // Check if API is available
+                    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                      setError('Tu navegador no soporta acceso a la cámara. Intenta con Chrome o Safari.');
+                      return;
                     }
-                  }
-                }}
-              >
-                Solicitar Permiso
-              </Button>
+
+                    // Check if secure context
+                    if (!window.isSecureContext) {
+                      setError('Se requiere HTTPS para usar la cámara. Verifica que la URL comience con https://');
+                      return;
+                    }
+
+                    try {
+                      const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment' },
+                      });
+                      stream.getTracks().forEach(track => track.stop());
+                      setHasPermission(true);
+                      await getCameras();
+                      startScanning();
+                    } catch (err: any) {
+                      console.error('Permission error:', err.name, err.message);
+                      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                        setHasPermission(false);
+                        setError('Permiso bloqueado. Debes habilitarlo manualmente en la configuración del navegador (ver instrucciones arriba).');
+                      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                        setError('No se encontró cámara en este dispositivo.');
+                      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                        setError('La cámara está en uso por otra aplicación.');
+                      } else if (err.name === 'OverconstrainedError') {
+                        // Try without facingMode constraint
+                        try {
+                          const stream2 = await navigator.mediaDevices.getUserMedia({ video: true });
+                          stream2.getTracks().forEach(track => track.stop());
+                          setHasPermission(true);
+                          await getCameras();
+                          startScanning();
+                        } catch {
+                          setError('Error al acceder a la cámara: ' + err.message);
+                        }
+                      } else {
+                        setError('Error: ' + err.name + ' - ' + err.message);
+                      }
+                    }
+                  }}
+                >
+                  Solicitar Permiso
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400"
+                  onClick={() => {
+                    // Copy diagnostic info
+                    const info = `
+Navegador: ${navigator.userAgent}
+Secure Context: ${window.isSecureContext}
+MediaDevices: ${!!navigator.mediaDevices}
+URL: ${window.location.href}
+                    `.trim();
+                    navigator.clipboard?.writeText(info);
+                    alert('Info copiada: ' + info);
+                  }}
+                >
+                  Copiar info de diagnóstico
+                </Button>
+              </div>
             </div>
           </div>
         )}
