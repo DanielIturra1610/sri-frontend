@@ -364,22 +364,44 @@ export function BarcodeScanner({
         {/* Error overlay */}
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/80 p-4">
-            <div className="text-center text-white">
+            <div className="text-center text-white max-w-xs">
               <CameraOff className="mx-auto mb-2 h-12 w-12 text-destructive" />
-              <p className="text-sm">{error}</p>
+              <p className="text-sm mb-2">{error}</p>
               {hasPermission === false && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => {
-                    setError(null);
-                    startScanning();
-                  }}
-                >
-                  Reintentar
-                </Button>
+                <p className="text-xs text-gray-400 mb-3">
+                  Si el navegador bloqueó el permiso, toca el ícono de candado en la barra de direcciones y habilita la cámara.
+                </p>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={async () => {
+                  setError(null);
+                  setHasPermission(null);
+                  // Force request permission again
+                  try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                      video: { facingMode: 'environment' },
+                    });
+                    stream.getTracks().forEach(track => track.stop());
+                    setHasPermission(true);
+                    // Re-fetch cameras and start
+                    await getCameras();
+                    startScanning();
+                  } catch (err: any) {
+                    console.error('Permission request failed:', err);
+                    if (err.name === 'NotAllowedError') {
+                      setHasPermission(false);
+                      setError('Permiso denegado. Habilita la cámara en la configuración del navegador.');
+                    } else {
+                      setError('Error: ' + err.message);
+                    }
+                  }
+                }}
+              >
+                Solicitar Permiso
+              </Button>
             </div>
           </div>
         )}
@@ -390,6 +412,7 @@ export function BarcodeScanner({
             <div className="text-center text-white">
               <Camera className="mx-auto mb-2 h-12 w-12" />
               <p className="text-sm">Cámara pausada</p>
+              <p className="text-xs text-gray-400 mt-1">Presiona "Escanear" para iniciar</p>
             </div>
           </div>
         )}
