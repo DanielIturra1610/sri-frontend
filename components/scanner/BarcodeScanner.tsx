@@ -71,10 +71,47 @@ export function BarcodeScanner({
     return readerRef.current;
   }, [formats]);
 
+  // Request camera permission explicitly (needed for mobile)
+  const requestCameraPermission = useCallback(async () => {
+    try {
+      // Request permission by getting a temporary stream
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }, // Prefer back camera on mobile
+      });
+      // Stop the stream immediately - we just needed to trigger permission prompt
+      stream.getTracks().forEach(track => track.stop());
+      setHasPermission(true);
+      return true;
+    } catch (err: any) {
+      console.error('Camera permission error:', err);
+      if (err.name === 'NotAllowedError') {
+        setHasPermission(false);
+        setError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración del navegador.');
+      } else if (err.name === 'NotFoundError') {
+        setError('No se encontró ninguna cámara en el dispositivo.');
+      } else {
+        setError('Error al acceder a la cámara: ' + err.message);
+      }
+      return false;
+    }
+  }, []);
+
   // Get available cameras
   const getCameras = useCallback(async () => {
     try {
-      const videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+      // First, try to list devices (might be empty on mobile without permission)
+      let videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+
+      // If no devices found and we haven't requested permission yet, try requesting
+      if (videoInputDevices.length === 0 && hasPermission === null) {
+        console.log('No cameras found, requesting permission...');
+        const granted = await requestCameraPermission();
+        if (granted) {
+          // Try again after permission granted
+          videoInputDevices = await BrowserMultiFormatReader.listVideoInputDevices();
+        }
+      }
+
       const cameraList: CameraDevice[] = videoInputDevices.map((device, index) => ({
         deviceId: device.deviceId,
         label: device.label || `Cámara ${index + 1}`,
@@ -82,11 +119,12 @@ export function BarcodeScanner({
 
       setCameras(cameraList);
 
-      // Prefer back camera
+      // Prefer back camera (for mobile scanning)
       const backCamera = cameraList.find(
         (cam) => cam.label.toLowerCase().includes('back') ||
                  cam.label.toLowerCase().includes('trasera') ||
-                 cam.label.toLowerCase().includes('rear')
+                 cam.label.toLowerCase().includes('rear') ||
+                 cam.label.toLowerCase().includes('environment')
       );
 
       if (backCamera) {
@@ -101,7 +139,7 @@ export function BarcodeScanner({
       setError('No se pudieron obtener las cámaras disponibles');
       return [];
     }
-  }, []);
+  }, [hasPermission, requestCameraPermission]);
 
   // Check torch support
   const checkTorchSupport = useCallback(async () => {
@@ -171,15 +209,34 @@ export function BarcodeScanner({
 
   // Start scanning
   const startScanning = useCallback(async () => {
-    if (!videoRef.current || !selectedCamera) return;
+    if (!videoRef.current) return;
 
     setError(null);
 
     try {
+      // If no camera selected, try to get cameras first (will request permission on mobile)
+      let cameraToUse = selectedCamera;
+      if (!cameraToUse) {
+        console.log('No camera selected, getting cameras...');
+        const cameraList = await getCameras();
+        if (cameraList.length === 0) {
+          setError('No se encontraron cámaras. Asegúrate de dar permiso de acceso a la cámara.');
+          return;
+        }
+        // Use the first camera or back camera
+        const backCamera = cameraList.find(
+          (cam) => cam.label.toLowerCase().includes('back') ||
+                   cam.label.toLowerCase().includes('trasera') ||
+                   cam.label.toLowerCase().includes('rear')
+        );
+        cameraToUse = backCamera?.deviceId || cameraList[0].deviceId;
+        setSelectedCamera(cameraToUse);
+      }
+
       const reader = readerRef.current || initializeReader();
 
       const controls = await reader.decodeFromVideoDevice(
-        selectedCamera,
+        cameraToUse,
         videoRef.current,
         (result, error) => {
           if (result) {
@@ -203,16 +260,18 @@ export function BarcodeScanner({
 
       if (err.name === 'NotAllowedError') {
         setHasPermission(false);
-        setError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara.');
+        setError('Permiso de cámara denegado. Por favor, habilita el acceso a la cámara en la configuración del navegador.');
       } else if (err.name === 'NotFoundError') {
         setError('No se encontró ninguna cámara.');
+      } else if (err.name === 'NotReadableError') {
+        setError('La cámara está siendo usada por otra aplicación. Cierra otras apps que usen la cámara.');
       } else {
         setError('Error al iniciar el escáner: ' + err.message);
       }
 
       onError?.(err);
     }
-  }, [selectedCamera, initializeReader, handleScan, checkTorchSupport, onError]);
+  }, [selectedCamera, getCameras, initializeReader, handleScan, checkTorchSupport, onError]);
 
   // Stop scanning
   const stopScanning = useCallback(() => {
@@ -253,13 +312,14 @@ export function BarcodeScanner({
   }, [getCameras, initializeReader, stopScanning]);
 
   // Auto start/stop based on enabled prop and selected camera
+  // On mobile, we don't auto-start if hasPermission is null (not yet requested)
   useEffect(() => {
-    if (enabled && selectedCamera && !isScanning) {
+    if (enabled && selectedCamera && !isScanning && hasPermission !== false) {
       startScanning();
     } else if (!enabled && isScanning) {
       stopScanning();
     }
-  }, [enabled, selectedCamera, isScanning, startScanning, stopScanning]);
+  }, [enabled, selectedCamera, isScanning, hasPermission, startScanning, stopScanning]);
 
   // Restart scanning when camera changes
   useEffect(() => {
@@ -342,7 +402,6 @@ export function BarcodeScanner({
           variant={isScanning ? 'destructive' : 'default'}
           size="sm"
           onClick={isScanning ? stopScanning : startScanning}
-          disabled={!selectedCamera}
         >
           {isScanning ? (
             <>
