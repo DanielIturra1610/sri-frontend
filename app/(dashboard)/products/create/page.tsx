@@ -101,6 +101,11 @@ export default function CreateProductPage() {
       }
     }
 
+    // Set product image if available
+    if (suggestion.image_url) {
+      setImageUrl(suggestion.image_url);
+    }
+
     setShowScanner(false);
     toast.success('Datos del producto aplicados');
   }, [setValue, categories]);

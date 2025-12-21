@@ -18,6 +18,7 @@ import { ProductService } from '@/services/productService';
 import { useCountScanner } from '@/lib/hooks/useCountScanner';
 import { BarcodeScanner } from '@/components/scanner/BarcodeScanner';
 import { ProductSuggestionModal } from '@/components/inventory/ProductSuggestionModal';
+import { ProductIdentificationCard } from '@/components/inventory/ProductIdentificationCard';
 import {
   Button,
   Card,
@@ -307,74 +308,68 @@ export default function CountScanPage() {
 
         {/* Right Column - Last Scan & History */}
         <div className="space-y-4">
-          {/* Last Scan Result */}
-          {lastScanResult && (
-            <Card
-              className={
-                lastScanResult.already_counted
-                  ? 'border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-900/20'
-                  : 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20'
-              }
-            >
-              <CardHeader className="py-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  {lastScanResult.already_counted ? (
-                    <>
-                      <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                      <span className="text-yellow-600 dark:text-yellow-400">
-                        Producto ya contado
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                      <span className="text-green-600 dark:text-green-400">
-                        Producto registrado
-                      </span>
-                    </>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Package className="h-10 w-10 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {lastScanResult.product?.name ||
-                          lastScanResult.item?.product?.name ||
-                          'Producto'}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        SKU: {lastScanResult.product?.sku || '-'}
-                      </p>
-                      {lastScanResult.product?.barcode && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Código: {lastScanResult.product.barcode}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+          {/* Last Scan Result with Product Identification */}
+          {lastScanResult && lastScanResult.product && (
+            <div className="space-y-3">
+              {/* Status badge */}
+              <div
+                className={`flex items-center gap-2 p-3 rounded-lg ${
+                  lastScanResult.already_counted
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800'
+                    : 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                }`}
+              >
+                {lastScanResult.already_counted ? (
+                  <>
+                    <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                    <span className="text-yellow-600 dark:text-yellow-400 font-medium">
+                      Producto ya contado
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <span className="text-green-600 dark:text-green-400 font-medium">
+                      Producto registrado
+                    </span>
+                  </>
+                )}
+                {lastScanResult.already_counted && lastScanResult.counted_at && (
+                  <span className="text-xs text-gray-500 ml-auto">
+                    {new Date(lastScanResult.counted_at).toLocaleString('es-CL')}
+                  </span>
+                )}
+              </div>
 
+              {/* Product Identification Card */}
+              <ProductIdentificationCard
+                product={lastScanResult.product}
+                expectedQuantity={lastScanResult.item?.expected_quantity}
+                showQuantityInput={false}
+              />
+
+              {/* Count summary */}
+              <Card>
+                <CardContent className="py-4">
                   <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <div className="text-xs text-gray-500">Esperado</div>
-                      <div className="font-bold">
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
                         {lastScanResult.item?.expected_quantity || '-'}
                       </div>
                     </div>
-                    <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <div className="text-xs text-gray-500">Contado</div>
-                      <div className="font-bold">
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
                         {lastScanResult.already_counted
                           ? lastScanResult.previous_count
                           : lastScanResult.item?.counted_quantity || '-'}
                       </div>
                     </div>
-                    <div className="p-2 bg-white dark:bg-gray-800 rounded">
+                    <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <div className="text-xs text-gray-500">Diferencia</div>
                       <div
-                        className={`font-bold ${getDiscrepancyColor(
+                        className={`text-lg font-bold ${getDiscrepancyColor(
                           lastScanResult.discrepancy || 0
                         )}`}
                       >
@@ -382,16 +377,9 @@ export default function CountScanPage() {
                       </div>
                     </div>
                   </div>
-
-                  {lastScanResult.already_counted && lastScanResult.counted_at && (
-                    <p className="text-xs text-yellow-600 dark:text-yellow-400">
-                      Contado el:{' '}
-                      {new Date(lastScanResult.counted_at).toLocaleString('es-CL')}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {/* Scan History */}

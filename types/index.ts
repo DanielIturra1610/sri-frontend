@@ -998,6 +998,7 @@ export interface OCRProductSuggestion {
   volume?: string;
   ingredients?: string;
   expiration_date?: string;
+  image_url?: string;
   confidence: number;
   source: 'ocr' | 'ocr+openfoodfacts';
 }
