@@ -1,21 +1,28 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Camera, X } from 'lucide-react';
 import { ProductService } from '@/services/productService';
 import { CategoryService } from '@/services/categoryService';
 import { productSchema, type ProductFormData, unitOfMeasureLabels } from '@/lib/validations/product';
 import { Button, Input, Textarea, NativeSelect as Select, Checkbox, Card, CardHeader, CardTitle, CardContent, Alert } from '@/components/ui';
-import type { Category } from '@/types';
+import { ProductScanner } from '@/components/scanner';
+import { ProductImageUpload } from '@/components/products/ProductImageUpload';
+import { ProductSpecificationsForm } from '@/components/products/ProductSpecificationsForm';
+import type { Category, OCRProductSuggestion, UnitOfMeasure, ProductSpecifications } from '@/types';
 import toast from 'react-hot-toast';
 
 export default function CreateProductPage() {
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [specifications, setSpecifications] = useState<ProductSpecifications>({});
+  const [trackLots, setTrackLots] = useState(false);
 
   const {
     register,
@@ -47,6 +54,57 @@ export default function CreateProductPage() {
     loadCategories();
   }, []);
 
+  // Handle OCR scan result
+  const handleScanComplete = useCallback((suggestion: OCRProductSuggestion) => {
+    // Apply scanned data to form
+    if (suggestion.name) {
+      setValue('name', suggestion.name);
+    }
+    if (suggestion.barcode) {
+      setValue('barcode', suggestion.barcode);
+    }
+    if (suggestion.brand) {
+      setValue('brand', suggestion.brand);
+    }
+    if (suggestion.description) {
+      setValue('description', suggestion.description);
+    }
+    if (suggestion.cost_price) {
+      setValue('cost_price', suggestion.cost_price);
+    }
+    if (suggestion.sale_price) {
+      setValue('sale_price', suggestion.sale_price);
+    }
+    if (suggestion.unit_of_measure) {
+      // Map OCR unit to form unit
+      const unitMap: Record<string, UnitOfMeasure> = {
+        'kg': 'kg',
+        'gram': 'gram',
+        'liter': 'liter',
+        'ml': 'ml',
+        'unit': 'unit',
+        'box': 'box',
+        'pack': 'pack',
+      };
+      const mappedUnit = unitMap[suggestion.unit_of_measure.toLowerCase()] || 'unit';
+      setValue('unit_of_measure', mappedUnit);
+    }
+
+    // Try to match category by name
+    if (suggestion.category && categories.length > 0) {
+      const matchedCategory = categories.find(
+        cat => cat.name.toLowerCase().includes(suggestion.category!.toLowerCase()) ||
+               suggestion.category!.toLowerCase().includes(cat.name.toLowerCase())
+      );
+      if (matchedCategory) {
+        setValue('category_id', matchedCategory.id);
+      }
+    }
+
+    setShowScanner(false);
+    toast.success('Datos del producto aplicados');
+  }, [setValue, categories]);
+
   // Handle form submission
   const onSubmit = async (data: ProductFormData) => {
     try {
@@ -62,6 +120,10 @@ export default function CreateProductPage() {
         tax_rate: data.tax_rate || undefined,
         minimum_stock: data.minimum_stock || undefined,
         maximum_stock: data.maximum_stock || undefined,
+        // Additional fields
+        image_url: imageUrl || undefined,
+        track_lots: trackLots,
+        attributes: Object.keys(specifications).length > 0 ? { specifications } : undefined,
       };
 
       await ProductService.createProduct(productData);
@@ -79,24 +141,46 @@ export default function CreateProductPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          leftIcon={<ArrowLeft className="h-4 w-4" />}
-        >
-          Volver
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Crear Producto
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Agrega un nuevo producto al catálogo
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            leftIcon={<ArrowLeft className="h-4 w-4" />}
+          >
+            Volver
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Crear Producto
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Agrega un nuevo producto al catálogo
+            </p>
+          </div>
         </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowScanner(true)}
+          leftIcon={<Camera className="h-4 w-4" />}
+        >
+          Escanear
+        </Button>
       </div>
+
+      {/* OCR Scanner Modal */}
+      {showScanner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto p-6">
+            <ProductScanner
+              onScanComplete={handleScanComplete}
+              onCancel={() => setShowScanner(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -169,6 +253,19 @@ export default function CreateProductPage() {
                 </option>
               ))}
             </Select>
+          </CardContent>
+        </Card>
+
+        {/* Product Image */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Imagen del Producto</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProductImageUpload
+              currentImage={imageUrl || undefined}
+              onImageChange={setImageUrl}
+            />
           </CardContent>
         </Card>
 
@@ -257,20 +354,44 @@ export default function CreateProductPage() {
           </CardContent>
         </Card>
 
-        {/* Status */}
+        {/* Technical Specifications */}
         <Card>
           <CardHeader>
-            <CardTitle>Estado</CardTitle>
+            <CardTitle>Ficha Tecnica</CardTitle>
           </CardHeader>
           <CardContent>
+            <ProductSpecificationsForm
+              specifications={specifications}
+              onChange={setSpecifications}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Status & Options */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Estado y Opciones</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <Checkbox
               label="Producto activo"
               {...register('is_active')}
               defaultChecked
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Los productos inactivos no aparecerán en búsquedas y reportes
             </p>
+
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <Checkbox
+                label="Requiere seguimiento por lotes"
+                checked={trackLots}
+                onChange={(e) => setTrackLots(e.target.checked)}
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Activa esta opcion para productos que requieren trazabilidad por lote (ej: alimentos, medicamentos, materiales con certificacion)
+              </p>
+            </div>
           </CardContent>
         </Card>
 

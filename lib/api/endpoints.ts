@@ -164,4 +164,66 @@ export const API_ENDPOINTS = {
     CONFIG: '/backups/config',
     UPDATE_CONFIG: '/backups/config',
   },
+
+  // Billing
+  BILLING: {
+    PLANS: '/billing/plans',
+    SETUP_INTENT: '/billing/setup-intent',
+    SUBSCRIPTION: '/billing/subscription',
+    SUBSCRIBE: '/billing/subscribe',
+    CANCEL: '/billing/cancel',
+    REACTIVATE: '/billing/reactivate',
+    CHANGE_PLAN: '/billing/change-plan',
+    PAYMENT_METHODS: '/billing/payment-methods',
+    ADD_PAYMENT_METHOD: '/billing/payment-methods',
+    REMOVE_PAYMENT_METHOD: (id: string) => `/billing/payment-methods/${id}`,
+    SET_DEFAULT_PAYMENT_METHOD: (id: string) => `/billing/payment-methods/${id}/default`,
+    INVOICES: '/billing/invoices',
+    PAY: '/billing/pay', // One-time payment order
+  },
+
+  // Sales
+  SALES: {
+    LIST: '/sales',
+    CREATE: '/sales',
+    QUICK_SALE: '/sales/quick',
+    GET: (id: string) => `/sales/${id}`,
+    COMPLETE: (id: string) => `/sales/${id}/complete`,
+    CANCEL: (id: string) => `/sales/${id}/cancel`,
+    SUMMARY: '/sales/summary',
+    DAILY: '/sales/daily',
+  },
+
+  // Suppliers
+  SUPPLIERS: {
+    LIST: '/suppliers',
+    CREATE: '/suppliers',
+    GET: (id: string) => `/suppliers/${id}`,
+    UPDATE: (id: string) => `/suppliers/${id}`,
+    DELETE: (id: string) => `/suppliers/${id}`,
+  },
+
+  // Purchases
+  PURCHASES: {
+    LIST: '/purchases',
+    CREATE: '/purchases',
+    GET: (id: string) => `/purchases/${id}`,
+    ORDER: (id: string) => `/purchases/${id}/order`,
+    RECEIVE: (id: string) => `/purchases/${id}/receive`,
+    CANCEL: (id: string) => `/purchases/${id}/cancel`,
+    SUMMARY: '/purchases/summary',
+  },
+
+  // OCR (Google Vision)
+  OCR: {
+    PROCESS: '/ocr/process',
+    TEXT: '/ocr/text',
+    BARCODES: '/ocr/barcodes',
+    SUGGEST: '/ocr/suggest',
+  },
+
+  // Upload
+  UPLOAD: {
+    IMAGE: '/upload/image',
+  },
 } as const;

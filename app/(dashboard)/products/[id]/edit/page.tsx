@@ -9,7 +9,9 @@ import { ProductService } from '@/services/productService';
 import { CategoryService } from '@/services/categoryService';
 import { productSchema, type ProductFormData, unitOfMeasureLabels } from '@/lib/validations/product';
 import { Button, Input, Textarea, NativeSelect as Select, Checkbox, Card, CardHeader, CardTitle, CardContent, Alert, Skeleton } from '@/components/ui';
-import type { Category } from '@/types';
+import { ProductImageUpload } from '@/components/products/ProductImageUpload';
+import { ProductSpecificationsForm } from '@/components/products/ProductSpecificationsForm';
+import type { Category, ProductSpecifications } from '@/types';
 import toast from 'react-hot-toast';
 
 export default function EditProductPage() {
@@ -21,6 +23,9 @@ export default function EditProductPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [specifications, setSpecifications] = useState<ProductSpecifications>({});
+  const [trackLots, setTrackLots] = useState(false);
 
   const {
     register,
@@ -76,6 +81,13 @@ export default function EditProductPage() {
           maximum_stock: product.maximum_stock || undefined,
           is_active: product.is_active,
         });
+
+        // Populate additional fields
+        setImageUrl(product.image_url || null);
+        setTrackLots(product.track_lots || false);
+        if (product.attributes?.specifications) {
+          setSpecifications(product.attributes.specifications);
+        }
       } catch (error: any) {
         setError(error.message || 'Error al cargar el producto');
         toast.error('Error al cargar el producto');
@@ -105,6 +117,10 @@ export default function EditProductPage() {
         tax_rate: data.tax_rate || undefined,
         minimum_stock: data.minimum_stock || undefined,
         maximum_stock: data.maximum_stock || undefined,
+        // Additional fields
+        image_url: imageUrl || undefined,
+        track_lots: trackLots,
+        attributes: Object.keys(specifications).length > 0 ? { specifications } : undefined,
       };
 
       await ProductService.updateProduct(productId, productData);
@@ -249,6 +265,19 @@ export default function EditProductPage() {
           </CardContent>
         </Card>
 
+        {/* Product Image */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Imagen del Producto</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProductImageUpload
+              currentImage={imageUrl || undefined}
+              onImageChange={setImageUrl}
+            />
+          </CardContent>
+        </Card>
+
         {/* Pricing */}
         <Card>
           <CardHeader>
@@ -334,19 +363,43 @@ export default function EditProductPage() {
           </CardContent>
         </Card>
 
-        {/* Status */}
+        {/* Technical Specifications */}
         <Card>
           <CardHeader>
-            <CardTitle>Estado</CardTitle>
+            <CardTitle>Ficha Tecnica</CardTitle>
           </CardHeader>
           <CardContent>
+            <ProductSpecificationsForm
+              specifications={specifications}
+              onChange={setSpecifications}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Status & Options */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Estado y Opciones</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <Checkbox
               label="Producto activo"
               {...register('is_active')}
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Los productos inactivos no aparecerán en búsquedas y reportes
             </p>
+
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <Checkbox
+                label="Requiere seguimiento por lotes"
+                checked={trackLots}
+                onChange={(e) => setTrackLots(e.target.checked)}
+              />
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                Activa esta opcion para productos que requieren trazabilidad por lote (ej: alimentos, medicamentos, materiales con certificacion)
+              </p>
+            </div>
           </CardContent>
         </Card>
 

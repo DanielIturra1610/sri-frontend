@@ -90,8 +90,33 @@ export interface Product {
   minimum_stock?: number;
   maximum_stock?: number;
   is_active: boolean;
+  track_lots: boolean;
+  image_url?: string;
+  attributes?: ProductAttributes;
+  images?: string[];
   created_at: string;
   updated_at: string;
+}
+
+// Product specifications for industrial products
+export interface ProductSpecifications {
+  weight?: string;
+  dimensions?: string;
+  material?: string;
+  grade?: string;
+  certifications?: string[];
+  storage_temp?: string;
+  shelf_life?: string;
+  instructions?: string;
+  manufacturer?: string;
+  country_of_origin?: string;
+  custom_fields?: Record<string, string>;
+}
+
+// Product attributes containing specifications
+export interface ProductAttributes {
+  specifications?: ProductSpecifications;
+  [key: string]: any;
 }
 
 export type UnitOfMeasure = 'unit' | 'kg' | 'gram' | 'liter' | 'ml' | 'meter' | 'cm' | 'sqm' | 'box' | 'pack' | 'pallet';
@@ -110,6 +135,18 @@ export interface CreateProductDTO {
   minimum_stock?: number;
   maximum_stock?: number;
   is_active?: boolean;
+  track_lots?: boolean;
+  attributes?: ProductAttributes;
+  images?: string[];
+}
+
+// Upload types
+export interface UploadResponse {
+  url: string;
+  thumbnail_url?: string;
+  filename: string;
+  size: number;
+  content_type: string;
 }
 
 // Category types
@@ -674,4 +711,305 @@ export interface CountFilters extends PaginationParams {
   status?: CountStatus;
   date_from?: string;
   date_to?: string;
+}
+
+// Sale types
+export type SaleStatus = 'draft' | 'completed' | 'cancelled' | 'refunded';
+export type PaymentMethod = 'cash' | 'card' | 'transfer' | 'mixed' | 'other';
+
+export interface Sale {
+  id: string;
+  sale_number: string;
+  location_id: string;
+  location_name?: string;
+  customer_name?: string;
+  customer_rut?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  subtotal: number;
+  tax_amount: number;
+  discount_amount: number;
+  total: number;
+  payment_method: PaymentMethod;
+  payment_reference?: string;
+  status: SaleStatus;
+  notes?: string;
+  items: SaleItem[];
+  created_by: string;
+  completed_by?: string;
+  cancelled_by?: string;
+  created_at: string;
+  completed_at?: string;
+  cancelled_at?: string;
+  cancel_reason?: string;
+}
+
+export interface SaleItem {
+  id: string;
+  sale_id: string;
+  product_id: string;
+  product_name: string;
+  product_sku: string;
+  product_barcode?: string;
+  quantity: number;
+  unit_price: number;
+  discount_percent: number;
+  discount_amount: number;
+  tax_rate: number;
+  tax_amount: number;
+  subtotal: number;
+  total: number;
+}
+
+export interface CreateSaleDTO {
+  location_id: string;
+  customer_name?: string;
+  customer_rut?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  payment_method: PaymentMethod;
+  payment_reference?: string;
+  notes?: string;
+  items: CreateSaleItemDTO[];
+}
+
+export interface CreateSaleItemDTO {
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  discount_percent?: number;
+}
+
+export interface QuickSaleDTO {
+  location_id: string;
+  items: QuickSaleItemDTO[];
+  payment_method: PaymentMethod;
+  payment_reference?: string;
+  customer_name?: string;
+  customer_rut?: string;
+}
+
+export interface QuickSaleItemDTO {
+  barcode?: string;
+  product_id?: string;
+  quantity: number;
+}
+
+export interface CancelSaleDTO {
+  reason: string;
+}
+
+export interface SaleSummary {
+  total_sales: number;
+  total_amount: number;
+  total_tax: number;
+  completed_sales: number;
+  cancelled_sales: number;
+  average_sale: number;
+}
+
+export interface DailySales {
+  date: string;
+  total_sales: number;
+  total_amount: number;
+}
+
+export interface SaleFilters extends PaginationParams {
+  location_id?: string;
+  status?: SaleStatus;
+  payment_method?: PaymentMethod;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
+
+// Supplier types
+export interface Supplier {
+  id: string;
+  name: string;
+  rut?: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  address?: string;
+  city?: string;
+  notes?: string;
+  is_active: boolean;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateSupplierDTO {
+  name: string;
+  rut?: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  address?: string;
+  city?: string;
+  notes?: string;
+}
+
+export interface UpdateSupplierDTO {
+  name?: string;
+  rut?: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  address?: string;
+  city?: string;
+  notes?: string;
+  is_active?: boolean;
+}
+
+export interface SupplierFilters extends PaginationParams {
+  search?: string;
+  is_active?: boolean;
+}
+
+// Purchase types
+export type PurchaseStatus = 'draft' | 'ordered' | 'partial' | 'received' | 'cancelled';
+
+export interface Purchase {
+  id: string;
+  purchase_number: string;
+  supplier_id: string;
+  supplier?: Supplier;
+  location_id: string;
+  location?: Location;
+  supplier_invoice?: string;
+  subtotal: number;
+  tax_amount: number;
+  discount_amount: number;
+  total: number;
+  status: PurchaseStatus;
+  notes?: string;
+  expected_date?: string;
+  ordered_at?: string;
+  received_at?: string;
+  cancelled_at?: string;
+  cancel_reason?: string;
+  items: PurchaseItem[];
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PurchaseItem {
+  id: string;
+  purchase_id: string;
+  product_id: string;
+  product_name: string;
+  product_sku: string;
+  quantity: number;
+  received_quantity: number;
+  unit_cost: number;
+  discount_percent: number;
+  discount_amount: number;
+  tax_rate: number;
+  tax_amount: number;
+  subtotal: number;
+  total: number;
+  inventory_updated: boolean;
+}
+
+export interface CreatePurchaseDTO {
+  supplier_id: string;
+  location_id: string;
+  supplier_invoice?: string;
+  notes?: string;
+  expected_date?: string;
+  items: CreatePurchaseItemDTO[];
+}
+
+export interface CreatePurchaseItemDTO {
+  product_id: string;
+  quantity: number;
+  unit_cost: number;
+  discount_percent?: number;
+}
+
+export interface ReceivePurchaseDTO {
+  items: ReceivePurchaseItemDTO[];
+}
+
+export interface ReceivePurchaseItemDTO {
+  item_id: string;
+  quantity: number;
+  notes?: string;
+}
+
+export interface CancelPurchaseDTO {
+  reason: string;
+}
+
+export interface PurchaseSummary {
+  total_purchases: number;
+  total_amount: number;
+  total_tax: number;
+  pending_purchases: number;
+  received_purchases: number;
+}
+
+export interface PurchaseFilters extends PaginationParams {
+  supplier_id?: string;
+  location_id?: string;
+  status?: PurchaseStatus;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
+
+// OCR types
+export type OCRRequestType = 'product_label' | 'invoice' | 'barcode' | 'price_tag' | 'generic';
+
+export interface OCRRequest {
+  image_base64: string;
+  type?: OCRRequestType;
+  language?: string;
+}
+
+export interface BarcodeResult {
+  value: string;
+  format: string;
+  confidence: number;
+}
+
+export interface PriceResult {
+  value: number;
+  currency: string;
+  raw: string;
+  confidence: number;
+  type: 'cost' | 'sale' | 'promo';
+}
+
+export interface OCRProductSuggestion {
+  name?: string;
+  brand?: string;
+  description?: string;
+  barcode?: string;
+  sku?: string;
+  category?: string;
+  cost_price?: number;
+  sale_price?: number;
+  unit_of_measure?: string;
+  weight?: string;
+  volume?: string;
+  ingredients?: string;
+  expiration_date?: string;
+  confidence: number;
+  source: 'ocr' | 'ocr+openfoodfacts';
+}
+
+export interface OCRResponse {
+  success: boolean;
+  raw_text?: string;
+  confidence: number;
+  barcodes?: BarcodeResult[];
+  suggestion?: OCRProductSuggestion;
+  labels?: string[];
+  prices?: PriceResult[];
+  processed_at: string;
+  error?: string;
 }
