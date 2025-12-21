@@ -1,0 +1,1 @@
+export { LotStatusBadge } from './LotStatusBadge';

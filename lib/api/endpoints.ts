@@ -226,4 +226,17 @@ export const API_ENDPOINTS = {
   UPLOAD: {
     IMAGE: '/upload/image',
   },
+
+  // Lots (Batch tracking)
+  LOTS: {
+    LIST: '/lots',
+    CREATE: '/lots',
+    GET: (id: string) => `/lots/${id}`,
+    UPDATE: (id: string) => `/lots/${id}`,
+    DELETE: (id: string) => `/lots/${id}`,
+    ADJUST: (id: string) => `/lots/${id}/adjust`,
+    EXPIRING: '/lots/expiring',
+    BY_PRODUCT: (productId: string) => `/lots/product/${productId}`,
+    BY_LOCATION: (locationId: string) => `/lots/location/${locationId}`,
+  },
 } as const;

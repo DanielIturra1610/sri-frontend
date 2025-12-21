@@ -1014,3 +1014,76 @@ export interface OCRResponse {
   processed_at: string;
   error?: string;
 }
+
+// Lot/Batch types
+export type LotStatus = 'available' | 'expired' | 'quarantine' | 'consumed' | 'recalled';
+
+export interface Lot {
+  id: string;
+  product_id: string;
+  location_id: string;
+  lot_number: string;
+  batch_code?: string;
+  manufacture_date?: string;
+  expiry_date?: string;
+  received_date?: string;
+  supplier_id?: string;
+  initial_quantity: number;
+  current_quantity: number;
+  unit_cost?: number;
+  status: LotStatus;
+  notes?: string;
+  attributes?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  product_name?: string;
+  product_sku?: string;
+  location_name?: string;
+  supplier_name?: string;
+  // Computed fields
+  days_until_expiry?: number;
+  is_expired: boolean;
+  is_low_stock: boolean;
+}
+
+export interface CreateLotDTO {
+  product_id: string;
+  location_id: string;
+  lot_number: string;
+  batch_code?: string;
+  manufacture_date?: string;
+  expiry_date?: string;
+  received_date?: string;
+  supplier_id?: string;
+  initial_quantity: number;
+  unit_cost?: number;
+  notes?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export interface UpdateLotDTO {
+  lot_number?: string;
+  batch_code?: string;
+  manufacture_date?: string;
+  expiry_date?: string;
+  received_date?: string;
+  supplier_id?: string;
+  unit_cost?: number;
+  status?: LotStatus;
+  notes?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export interface AdjustLotDTO {
+  quantity_change: number;
+  reason: string;
+}
+
+export interface LotFilters extends PaginationParams {
+  product_id?: string;
+  location_id?: string;
+  supplier_id?: string;
+  status?: LotStatus;
+  search?: string;
+}
