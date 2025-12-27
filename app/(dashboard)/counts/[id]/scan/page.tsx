@@ -15,10 +15,12 @@ import {
 } from 'lucide-react';
 import { CountService } from '@/services/countService';
 import { ProductService } from '@/services/productService';
+import { LotService } from '@/services/lotService';
 import { useCountScanner } from '@/lib/hooks/useCountScanner';
 import { BarcodeScanner } from '@/components/scanner/BarcodeScanner';
 import { ProductSuggestionModal } from '@/components/inventory/ProductSuggestionModal';
 import { ProductIdentificationCard } from '@/components/inventory/ProductIdentificationCard';
+import { LotSelector } from '@/components/lots/LotSelector';
 import {
   Button,
   Card,
@@ -36,7 +38,7 @@ import {
   formatDiscrepancy,
   getDiscrepancyColor,
 } from '@/lib/validations/count';
-import type { InventoryCount, CountSummary, ScanResult, ProductSuggestion, CreateProductDTO } from '@/types';
+import type { InventoryCount, CountSummary, ScanResult, ProductSuggestion, CreateProductDTO, Lot } from '@/types';
 import toast from 'react-hot-toast';
 
 export default function CountScanPage() {
@@ -55,9 +57,15 @@ export default function CountScanPage() {
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [currentSuggestion, setCurrentSuggestion] = useState<ProductSuggestion | null>(null);
 
+  // Lot selection state
+  const [productLots, setProductLots] = useState<Lot[]>([]);
+  const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
+  const [isLoadingLots, setIsLoadingLots] = useState(false);
+
   // Use the count scanner hook
   const {
     scanBarcode,
+    registerManual,
     isScanning: isScanningApi,
     isLookingUp,
     scanHistory,
@@ -65,18 +73,50 @@ export default function CountScanPage() {
     clearError,
   } = useCountScanner({
     countId,
-    onScanSuccess: (result) => {
+    onScanSuccess: async (result) => {
       setLastScanResult(result);
       loadSummary();
+      // Load lots for the scanned product
+      if (result.product?.id) {
+        await loadProductLots(result.product.id);
+      }
     },
-    onAlreadyCounted: (result) => {
+    onAlreadyCounted: async (result) => {
       setLastScanResult(result);
+      // Also load lots for already counted products
+      if (result.product?.id) {
+        await loadProductLots(result.product.id);
+      }
     },
     onProductSuggestion: (suggestion) => {
       setCurrentSuggestion(suggestion);
       setShowSuggestionModal(true);
     },
   });
+
+  // Load lots for a product
+  const loadProductLots = async (productId: string) => {
+    try {
+      setIsLoadingLots(true);
+      setSelectedLotId(null);
+      const lots = await LotService.getLotsByProduct(productId);
+      // Filter to only show lots with quantity > 0 and not expired
+      const availableLots = lots.filter(lot => {
+        if (lot.current_quantity <= 0) return false;
+        if (lot.expiry_date) {
+          const expiry = new Date(lot.expiry_date);
+          if (expiry < new Date()) return false;
+        }
+        return true;
+      });
+      setProductLots(availableLots);
+    } catch (error) {
+      console.error('Error loading lots:', error);
+      setProductLots([]);
+    } finally {
+      setIsLoadingLots(false);
+    }
+  };
 
   // Load count details
   useEffect(() => {
@@ -121,9 +161,27 @@ export default function CountScanPage() {
     async (barcode: string) => {
       clearError();
       setLastScanResult(null);
-      await scanBarcode(barcode, quantity);
+      setProductLots([]);
+      setSelectedLotId(null);
+      await scanBarcode(barcode, quantity, selectedLotId || undefined);
     },
-    [scanBarcode, quantity, clearError]
+    [scanBarcode, quantity, selectedLotId, clearError]
+  );
+
+  // Handle registering count with specific lot
+  const handleRegisterWithLot = useCallback(
+    async () => {
+      if (!lastScanResult?.product?.id) return;
+
+      await registerManual(
+        lastScanResult.product.id,
+        quantity,
+        selectedLotId || undefined
+      );
+      loadSummary();
+      toast.success(`Conteo actualizado con lote seleccionado`);
+    },
+    [lastScanResult, quantity, selectedLotId, registerManual]
   );
 
   // Quantity controls
@@ -379,6 +437,39 @@ export default function CountScanPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Lot Selection */}
+              {productLots.length > 0 && (
+                <Card>
+                  <CardContent className="py-4">
+                    <LotSelector
+                      lots={productLots}
+                      selectedLotId={selectedLotId}
+                      onSelect={setSelectedLotId}
+                      showNoLotOption={true}
+                      disabled={isLoadingLots || isScanningApi}
+                    />
+                    {selectedLotId && (
+                      <Button
+                        variant="primary"
+                        className="w-full mt-4"
+                        onClick={handleRegisterWithLot}
+                        disabled={isScanningApi}
+                      >
+                        Actualizar conteo con lote seleccionado
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Loading lots indicator */}
+              {isLoadingLots && (
+                <div className="flex items-center justify-center py-4 text-gray-500">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary mr-2" />
+                  Cargando lotes...
+                </div>
+              )}
             </div>
           )}
 
