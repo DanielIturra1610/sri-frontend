@@ -626,6 +626,7 @@ export interface InventoryCountItem {
   inventory_count_id: string;
   product_id: string;
   stock_id?: string;
+  lot_id?: string;
   expected_quantity: number;
   counted_quantity?: number;
   discrepancy?: number;
@@ -638,6 +639,7 @@ export interface InventoryCountItem {
   created_at: string;
   updated_at: string;
   product?: Product;
+  lot?: Lot;
 }
 
 export interface CreateInventoryCountDTO {
@@ -656,12 +658,14 @@ export interface CancelCountDTO {
 
 export interface ScanBarcodeDTO {
   barcode: string;
+  lot_id?: string;
   quantity: number;
   notes?: string;
 }
 
 export interface RegisterCountDTO {
   product_id: string;
+  lot_id?: string;
   quantity: number;
   notes?: string;
 }

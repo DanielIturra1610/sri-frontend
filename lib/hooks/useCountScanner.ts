@@ -17,6 +17,8 @@ export interface ScanState {
 export interface ScanHistoryItem {
   barcode: string;
   productName: string;
+  lotId?: string;
+  lotNumber?: string;
   quantity: number;
   timestamp: Date;
   success: boolean;
@@ -33,9 +35,9 @@ export interface UseCountScannerOptions {
 }
 
 export interface UseCountScannerReturn {
-  scanBarcode: (barcode: string, quantity?: number, notes?: string) => Promise<ScanResult | null>;
+  scanBarcode: (barcode: string, quantity?: number, lotId?: string, notes?: string) => Promise<ScanResult | null>;
   lookupBarcode: (barcode: string) => Promise<void>;
-  registerManual: (productId: string, quantity: number, notes?: string) => Promise<InventoryCountItem | null>;
+  registerManual: (productId: string, quantity: number, lotId?: string, notes?: string) => Promise<InventoryCountItem | null>;
   updateItemCount: (itemId: string, quantity: number, notes?: string) => Promise<InventoryCountItem | null>;
   isScanning: boolean;
   isLookingUp: boolean;
@@ -67,13 +69,15 @@ export function useCountScanner({
     mutationFn: async ({
       barcode,
       quantity,
+      lotId,
       notes,
     }: {
       barcode: string;
       quantity: number;
+      lotId?: string;
       notes?: string;
     }) => {
-      return CountService.scanBarcode(countId, { barcode, quantity, notes });
+      return CountService.scanBarcode(countId, { barcode, lot_id: lotId, quantity, notes });
     },
     onSuccess: (result, variables) => {
       setLastScan(result);
@@ -83,6 +87,8 @@ export function useCountScanner({
       const historyItem: ScanHistoryItem = {
         barcode: variables.barcode,
         productName: result.product?.name || result.item?.product?.name || 'Producto',
+        lotId: variables.lotId,
+        lotNumber: result.item?.lot?.lot_number,
         quantity: variables.quantity,
         timestamp: new Date(),
         success: !result.already_counted,
@@ -153,13 +159,15 @@ export function useCountScanner({
     mutationFn: async ({
       productId,
       quantity,
+      lotId,
       notes,
     }: {
       productId: string;
       quantity: number;
+      lotId?: string;
       notes?: string;
     }) => {
-      return CountService.registerCount(countId, { product_id: productId, quantity, notes });
+      return CountService.registerCount(countId, { product_id: productId, lot_id: lotId, quantity, notes });
     },
     onSuccess: () => {
       setError(null);
@@ -218,11 +226,12 @@ export function useCountScanner({
 
   // Scan barcode handler
   const scanBarcode = useCallback(
-    async (barcode: string, quantity?: number, notes?: string): Promise<ScanResult | null> => {
+    async (barcode: string, quantity?: number, lotId?: string, notes?: string): Promise<ScanResult | null> => {
       try {
         const result = await scanMutation.mutateAsync({
           barcode,
           quantity: quantity ?? defaultQuantity,
+          lotId,
           notes,
         });
         return result;
@@ -235,11 +244,12 @@ export function useCountScanner({
 
   // Register manual handler
   const registerManual = useCallback(
-    async (productId: string, quantity: number, notes?: string): Promise<InventoryCountItem | null> => {
+    async (productId: string, quantity: number, lotId?: string, notes?: string): Promise<InventoryCountItem | null> => {
       try {
         const result = await registerMutation.mutateAsync({
           productId,
           quantity,
+          lotId,
           notes,
         });
         return result;
