@@ -108,9 +108,10 @@ export function middleware(request: NextRequest) {
 
   // Allow public routes
   if (isPublicRoute(pathname)) {
-    // If authenticated user with tenant on landing page, redirect to dashboard
-    if (isAuthenticated && hasTenant && pathname === '/') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
+    // Landing page ("/") is always accessible - page.tsx handles redirect if authenticated
+    // This avoids redirect loops when cookies exist but tokens are expired
+    if (pathname === '/') {
+      return NextResponse.next();
     }
     // If authenticated user with tenant trying to access auth pages, redirect to dashboard
     if (isAuthenticated && hasTenant && (pathname === '/login' || pathname === '/register')) {
