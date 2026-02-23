@@ -35,6 +35,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadUser = () => {
       try {
+        // Verify access_token exists - if not, user data in localStorage is stale
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          // Clear any stale user/tenant data
+          localStorage.removeItem('user');
+          localStorage.removeItem('tenant');
+          setUser(null);
+          setTenant(null);
+          return;
+        }
+
         const currentUser = AuthService.getCurrentUser();
         const currentTenant = AuthService.getCurrentTenant();
         setUser(currentUser);
