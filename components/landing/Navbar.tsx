@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils/cn';
 const navLinks = [
   { href: '#features', label: 'Características' },
   { href: '#how-it-works', label: 'Cómo funciona' },
+  { href: '#pricing', label: 'Precios' },
 ];
 
 export function Navbar() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Settings, Sliders, Bell, Shield, Database } from 'lucide-react';
+import { Settings, Sliders, Bell, Shield, Database, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -55,6 +55,15 @@ export default function SettingsPage() {
       icon: <Database className="h-8 w-8" />,
       path: '/backups',
       color: 'text-green-600',
+      available: true,
+    },
+    {
+      id: 'billing',
+      title: 'Facturación y Suscripción',
+      description: 'Gestiona tu plan de suscripción, métodos de pago e historial de facturas',
+      icon: <CreditCard className="h-8 w-8" />,
+      path: '/settings/billing',
+      color: 'text-emerald-600',
       available: true,
     },
   ];

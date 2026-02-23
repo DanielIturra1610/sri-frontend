@@ -9,6 +9,7 @@ import {
   Features,
   Stats,
   HowItWorks,
+  Pricing,
   CTA,
   Footer
 } from '@/components/landing';
@@ -45,6 +46,7 @@ export default function Home() {
         <Stats />
         <Features />
         <HowItWorks />
+        <Pricing />
         <CTA />
       </main>
       <Footer />

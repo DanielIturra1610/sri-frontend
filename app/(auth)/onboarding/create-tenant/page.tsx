@@ -7,11 +7,26 @@ import { useRouter } from 'next/navigation';
 import { AuthService } from '@/services/authService';
 import { createTenantSchema, type CreateTenantFormData } from '@/lib/validations/auth';
 
+// Mapeo de slugs de landing a valores del backend
+const PLAN_SLUG_MAP: Record<string, string> = {
+  basico: 'basic',
+  profesional: 'professional',
+  empresarial: 'enterprise',
+};
+
+// Nombres legibles de los planes
+const PLAN_NAMES: Record<string, string> = {
+  basico: 'Básico',
+  profesional: 'Profesional',
+  empresarial: 'Empresarial',
+};
+
 export default function CreateTenantPage() {
   const router = useRouter();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ email: string; full_name: string } | null>(null);
+  const [selectedPlanFromLanding, setSelectedPlanFromLanding] = useState<string | null>(null);
 
   const {
     register,
@@ -35,13 +50,28 @@ export default function CreateTenantPage() {
 
     // Check if user already has a tenant
     if (user.tenant_id) {
-      router.push('/dashboard');
+      // Si hay plan seleccionado, ir a billing
+      const savedPlan = localStorage.getItem('selected_plan');
+      if (savedPlan) {
+        router.push('/settings/billing');
+      } else {
+        router.push('/dashboard');
+      }
       return;
     }
 
     setCurrentUser({ email: user.email, full_name: user.full_name });
     // Pre-fill email with user's email
     setValue('email', user.email);
+
+    // Cargar plan desde localStorage si existe
+    const savedPlan = localStorage.getItem('selected_plan');
+    if (savedPlan) {
+      setSelectedPlanFromLanding(savedPlan);
+      // Convertir slug de landing a valor del backend
+      const backendPlan = PLAN_SLUG_MAP[savedPlan] || 'basic';
+      setValue('plan', backendPlan as 'basic' | 'professional' | 'enterprise');
+    }
   }, [router, setValue]);
 
   const onSubmit = async (data: CreateTenantFormData) => {
@@ -51,8 +81,13 @@ export default function CreateTenantPage() {
 
       await AuthService.createTenant(data);
 
-      // Redirect to dashboard after successful tenant creation
-      router.push('/dashboard');
+      // Si hay plan seleccionado desde landing, ir a billing para pagar
+      const savedPlan = localStorage.getItem('selected_plan');
+      if (savedPlan) {
+        router.push('/settings/billing');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al crear la empresa');
     } finally {
@@ -123,6 +158,28 @@ export default function CreateTenantPage() {
           Configura tu empresa para comenzar a usar SRI Inventarios
         </p>
       </div>
+
+      {/* Selected Plan Banner */}
+      {selectedPlanFromLanding && (
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-green-800 dark:text-green-300">
+                Plan seleccionado desde el sitio
+              </p>
+              <p className="text-lg font-bold text-green-900 dark:text-green-200">
+                {PLAN_NAMES[selectedPlanFromLanding]}
+              </p>
+            </div>
+            <span className="px-3 py-1 bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200 text-xs font-medium rounded-full">
+              Pre-seleccionado
+            </span>
+          </div>
+          <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+            Después de crear tu empresa, serás redirigido a la página de pago para activar tu suscripción.
+          </p>
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (

@@ -21,6 +21,10 @@ import {
   Database,
   ChevronRight,
   ClipboardList,
+  ShoppingCart,
+  ShoppingBag,
+  Building2,
+  CreditCard,
 } from "lucide-react";
 import { Can } from "@/components/auth";
 import { PERMISSIONS } from "@/lib/constants/permissions";
@@ -116,6 +120,32 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    name: "Ventas",
+    href: "/sales",
+    icon: ShoppingCart,
+    permission: PERMISSIONS.PRODUCTS_VIEW,
+  },
+  {
+    name: "Compras",
+    href: "/purchases",
+    icon: ShoppingBag,
+    permission: PERMISSIONS.PRODUCTS_VIEW,
+    children: [
+      {
+        name: "Ordenes de Compra",
+        href: "/purchases",
+        icon: ShoppingBag,
+        permission: PERMISSIONS.PRODUCTS_VIEW,
+      },
+      {
+        name: "Proveedores",
+        href: "/suppliers",
+        icon: Building2,
+        permission: PERMISSIONS.PRODUCTS_VIEW,
+      },
+    ],
+  },
+  {
     name: "Importar",
     href: "/import",
     icon: Upload,
@@ -138,6 +168,12 @@ const navigation: NavItem[] = [
         href: "/settings/thresholds",
         icon: Settings,
         permission: PERMISSIONS.SETTINGS_VIEW,
+      },
+      {
+        name: "Facturacion",
+        href: "/settings/billing",
+        icon: CreditCard,
+        role: ["OWNER", "ADMIN"],
       },
     ],
   },

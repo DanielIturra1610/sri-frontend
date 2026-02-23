@@ -5,6 +5,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
 
+// Note: Flow.cl uses redirect-based flow for card registration
+// No embedded payment components needed (unlike Stripe Elements)
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>

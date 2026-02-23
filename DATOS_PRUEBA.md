@@ -307,20 +307,215 @@
 
 ---
 
-## 7. Orden de Prueba Recomendado
+## 7. Proveedores
+
+### Proveedor 1: Distribuidor Electrónico
+- **Nombre:** TechDistribuidora SpA
+- **RUT:** 76.543.210-K
+- **Contacto:** Roberto Muñoz
+- **Email:** ventas@techdistribuidora.cl
+- **Teléfono:** +56 2 2345 6789
+- **Dirección:** Av. Américo Vespucio 1500
+- **Ciudad:** Santiago
+- **Notas:** Proveedor principal de electrónicos (HP, Logitech, Redragon)
+
+### Proveedor 2: Mayorista Alimentos
+- **Nombre:** Alimentos del Sur Ltda
+- **RUT:** 77.888.999-5
+- **Contacto:** Carolina Soto
+- **Email:** pedidos@alimentosdelsur.cl
+- **Teléfono:** +56 2 3456 7890
+- **Dirección:** Parque Industrial Los Libertadores, Galpón 45
+- **Ciudad:** San Bernardo
+- **Notas:** Proveedor de café, agua, galletas. Entregas los martes y jueves.
+
+### Proveedor 3: Distribuidora Limpieza
+- **Nombre:** CleanPro Chile SA
+- **RUT:** 96.111.222-3
+- **Contacto:** Andrés Vera
+- **Email:** ventas@cleanpro.cl
+- **Teléfono:** +56 2 4567 8901
+- **Dirección:** Av. Industrial 890
+- **Ciudad:** Quilicura
+- **Notas:** Proveedor de Omo, Elite y productos de limpieza. Mínimo 10 unidades por producto.
+
+### Proveedor 4: Papelería Nacional
+- **Nombre:** Papeles y Útiles Limitada
+- **RUT:** 78.222.333-4
+- **Contacto:** Francisca López
+- **Email:** cotizaciones@papelesutiles.cl
+- **Teléfono:** +56 2 5678 9012
+- **Dirección:** Av. Matta 234
+- **Ciudad:** Santiago
+- **Notas:** Proveedor Chamex, Faber-Castell. Descuento 5% sobre 50 unidades.
+
+### Proveedor 5: Ferretería Industrial
+- **Nombre:** Herramientas Pro SpA
+- **RUT:** 76.999.888-7
+- **Contacto:** Miguel Contreras
+- **Email:** ventas@herramientaspro.cl
+- **Teléfono:** +56 2 6789 0123
+- **Dirección:** Av. Presidente Riesco 5432
+- **Ciudad:** Las Condes
+- **Notas:** Distribuidor autorizado Bosch y Stanley. Garantía directa con fabricante.
+
+---
+
+## 8. Compras de Prueba
+
+### Compra 1: Reposición Electrónicos
+- **Proveedor:** TechDistribuidora SpA
+- **Ubicación destino:** Bodega Central Santiago
+- **Fecha esperada:** (7 días desde hoy)
+- **N° Factura Proveedor:** FAC-2024-001234
+- **Items:**
+  | Producto | Cantidad | Costo Unit. | Subtotal |
+  |----------|----------|-------------|----------|
+  | Laptop HP Pavilion 15 | 10 | $450.000 | $4.500.000 |
+  | Mouse Inalámbrico Logitech M185 | 50 | $8.000 | $400.000 |
+  | Teclado Mecánico RGB Redragon | 20 | $25.000 | $500.000 |
+- **Subtotal:** $5.400.000
+- **IVA (19%):** $1.026.000
+- **Total:** $6.426.000
+- **Notas:** Reposición mensual electrónicos. Confirmar stock antes de despacho.
+
+### Compra 2: Stock Alimentos
+- **Proveedor:** Alimentos del Sur Ltda
+- **Ubicación destino:** Tienda Mall Plaza
+- **Fecha esperada:** (3 días desde hoy)
+- **N° Factura Proveedor:** BOL-88876
+- **Items:**
+  | Producto | Cantidad | Costo Unit. | Subtotal |
+  |----------|----------|-------------|----------|
+  | Café Molido Premium 1kg | 30 | $8.500 | $255.000 |
+  | Agua Mineral Sin Gas 1.5L | 200 | $350 | $70.000 |
+  | Galletas de Chocolate 180g | 100 | $650 | $65.000 |
+- **Subtotal:** $390.000
+- **IVA (19%):** $74.100
+- **Total:** $464.100
+- **Notas:** Pedido semanal alimentos tienda mall.
+
+### Compra 3: Productos Limpieza
+- **Proveedor:** CleanPro Chile SA
+- **Ubicación destino:** Bodega Central Santiago
+- **Fecha esperada:** (5 días desde hoy)
+- **Items:**
+  | Producto | Cantidad | Costo Unit. | Subtotal |
+  |----------|----------|-------------|----------|
+  | Detergente Líquido 3L | 40 | $4.500 | $180.000 |
+  | Papel Higiénico Pack 12 rollos | 60 | $3.200 | $192.000 |
+- **Subtotal:** $372.000
+- **IVA (19%):** $70.680
+- **Total:** $442.680
+- **Notas:** Stock mensual limpieza para distribución.
+
+### Compra 4: Útiles Oficina
+- **Proveedor:** Papeles y Útiles Limitada
+- **Ubicación destino:** Sucursal Viña del Mar
+- **Fecha esperada:** (4 días desde hoy)
+- **N° Factura Proveedor:** F-0012456
+- **Items:**
+  | Producto | Cantidad | Costo Unit. | Subtotal |
+  |----------|----------|-------------|----------|
+  | Resma Papel Carta 500 hojas | 50 | $3.500 | $175.000 |
+  | Caja Lápices Grafito HB x12 | 30 | $1.800 | $54.000 |
+- **Subtotal:** $229.000
+- **IVA (19%):** $43.510
+- **Total:** $272.510
+- **Notas:** Pedido trimestral oficina sucursal Viña.
+
+---
+
+## 9. Ventas de Prueba
+
+### Venta 1: Venta Tecnología (Efectivo)
+- **Ubicación:** Tienda Mall Plaza
+- **Cliente:** Sin nombre (venta rápida)
+- **Método de pago:** Efectivo
+- **Items:**
+  | Producto | Cantidad | Precio Unit. | Subtotal |
+  |----------|----------|--------------|----------|
+  | Mouse Inalámbrico Logitech M185 | 2 | $14.990 | $29.980 |
+  | Teclado Mecánico RGB Redragon | 1 | $39.990 | $39.990 |
+- **Subtotal:** $69.970
+- **IVA (19%):** $13.294
+- **Total:** $83.264
+
+### Venta 2: Venta Corporativa (Transferencia)
+- **Ubicación:** Bodega Central Santiago
+- **Cliente:** Empresa ABC SpA
+- **RUT Cliente:** 76.111.222-3
+- **Método de pago:** Transferencia
+- **Items:**
+  | Producto | Cantidad | Precio Unit. | Subtotal |
+  |----------|----------|--------------|----------|
+  | Laptop HP Pavilion 15 | 5 | $599.990 | $2.999.950 |
+  | Resma Papel Carta 500 hojas | 20 | $5.990 | $119.800 |
+  | Caja Lápices Grafito HB x12 | 10 | $2.990 | $29.900 |
+- **Subtotal:** $3.149.650
+- **IVA (19%):** $598.434
+- **Total:** $3.748.084
+
+### Venta 3: Venta Snacks (Tarjeta)
+- **Ubicación:** Tienda Mall Plaza
+- **Cliente:** Sin nombre
+- **Método de pago:** Tarjeta
+- **Items:**
+  | Producto | Cantidad | Precio Unit. | Subtotal |
+  |----------|----------|--------------|----------|
+  | Café Molido Premium 1kg | 1 | $12.990 | $12.990 |
+  | Galletas de Chocolate 180g | 3 | $1.190 | $3.570 |
+  | Agua Mineral Sin Gas 1.5L | 2 | $690 | $1.380 |
+- **Subtotal:** $17.940
+- **IVA (19%):** $3.409
+- **Total:** $21.349
+
+### Venta 4: Venta Limpieza Hogar (Efectivo)
+- **Ubicación:** Sucursal Viña del Mar
+- **Cliente:** María Pérez
+- **Método de pago:** Efectivo
+- **Items:**
+  | Producto | Cantidad | Precio Unit. | Subtotal |
+  |----------|----------|--------------|----------|
+  | Detergente Líquido 3L | 2 | $7.490 | $14.980 |
+  | Papel Higiénico Pack 12 rollos | 3 | $5.490 | $16.470 |
+- **Subtotal:** $31.450
+- **IVA (19%):** $5.976
+- **Total:** $37.426
+
+### Venta 5: Venta Herramientas (Tarjeta)
+- **Ubicación:** Tienda Mall Plaza
+- **Cliente:** Constructor Juan Soto
+- **RUT Cliente:** 12.345.678-9
+- **Método de pago:** Tarjeta
+- **Items:**
+  | Producto | Cantidad | Precio Unit. | Subtotal |
+  |----------|----------|--------------|----------|
+  | Taladro Percutor 750W | 1 | $69.990 | $69.990 |
+  | Set Destornilladores 20 piezas | 2 | $19.990 | $39.980 |
+- **Subtotal:** $109.970
+- **IVA (19%):** $20.894
+- **Total:** $130.864
+
+---
+
+## 10. Orden de Prueba Recomendado
 
 1. **Crear Categorías** (5 categorías)
 2. **Crear Ubicaciones** (4 ubicaciones)
 3. **Crear Productos** (12 productos)
 4. **Crear Usuarios adicionales** (2 usuarios)
 5. **Realizar Ajustes de Stock** (dar stock inicial a productos)
-6. **Crear Transferencias** (mover stock entre ubicaciones)
-7. **Verificar Dashboard** (ver métricas y alertas)
-8. **Revisar Audit Logs** (ver registro de actividades)
+6. **Crear Proveedores** (5 proveedores)
+7. **Crear Órdenes de Compra** (4 compras - probar recepción parcial)
+8. **Realizar Ventas** (5 ventas - diferentes métodos de pago)
+9. **Crear Transferencias** (mover stock entre ubicaciones)
+10. **Verificar Dashboard** (ver métricas y alertas)
+11. **Revisar Audit Logs** (ver registro de actividades)
 
 ---
 
-## 8. Casos de Prueba para Alertas
+## 11. Casos de Prueba para Alertas
 
 Para generar alertas de stock bajo:
 1. Crear producto con stock mínimo = 10
@@ -334,9 +529,66 @@ Para generar alertas de stock alto:
 
 ---
 
+## 12. Flujos de Prueba - Ventas y Compras
+
+### Flujo A: Ciclo Completo de Compra
+1. Ir a **Compras > Proveedores > Nuevo Proveedor**
+2. Crear "TechDistribuidora SpA" con los datos de arriba
+3. Ir a **Compras > Órdenes de Compra > Nueva Compra**
+4. Seleccionar proveedor y ubicación "Bodega Central"
+5. Agregar productos: 10 Laptops, 50 Mouse, 20 Teclados
+6. Guardar como borrador → Verificar estado "Borrador"
+7. Click "Marcar como Pedido" → Estado cambia a "Pedido"
+8. Click "Recibir Mercadería" → Recibir solo 5 Laptops (parcial)
+9. Verificar estado "Parcial"
+10. Recibir el resto → Estado cambia a "Recibido"
+11. **Verificar:** Stock en Bodega Central aumentó automáticamente
+
+### Flujo B: Venta Rápida POS
+1. Ir a **Ventas > Nueva Venta**
+2. Seleccionar ubicación "Tienda Mall Plaza"
+3. Buscar "Mouse" y agregar 2 unidades
+4. Buscar "Teclado" y agregar 1 unidad
+5. Seleccionar método de pago "Efectivo"
+6. Click "Completar Venta"
+7. **Verificar:** Stock en Tienda Mall disminuyó automáticamente
+8. **Verificar:** Venta aparece en lista con estado "Completada"
+
+### Flujo C: Venta con Cliente Registrado
+1. Ir a **Ventas > Nueva Venta**
+2. Seleccionar ubicación "Bodega Central"
+3. Agregar 5 Laptops al carrito
+4. Ingresar datos cliente: "Empresa ABC SpA", RUT "76.111.222-3"
+5. Seleccionar "Transferencia" como método de pago
+6. Click "Completar Venta"
+7. **Verificar:** Venta muestra datos del cliente en detalle
+
+### Flujo D: Cancelar Compra
+1. Crear nueva orden de compra (estado borrador)
+2. Click "Cancelar" → Ingresar motivo "Proveedor no tiene stock"
+3. **Verificar:** Estado cambia a "Cancelado"
+4. **Verificar:** No se afectó el inventario
+
+### Flujo E: Probar Filtros
+1. Crear varias ventas con diferentes estados
+2. Ir a **Ventas** y usar filtros por estado
+3. Verificar que los contadores coinciden
+4. Repetir para **Compras** con diferentes estados
+
+### Verificaciones de Inventario
+Después de cada operación, verificar en **Inventario > Stock**:
+- Las ventas restan del stock de la ubicación seleccionada
+- Las recepciones de compra suman al stock de la ubicación destino
+- Las transacciones quedan registradas en **Inventario > Transacciones**
+
+---
+
 ## Notas
 
 - Todos los precios están en CLP (Pesos Chilenos)
 - La tasa de impuesto por defecto es 19% (IVA Chile)
 - Los códigos de barras son ficticios para pruebas
 - Asegúrate de tener permisos de administrador para crear todos los recursos
+- Las ventas y compras actualizan el inventario automáticamente
+- El usuario "vendedor@test.com" puede crear ventas
+- El usuario "bodeguero@test.com" puede recibir compras

@@ -1,18 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthService } from '@/services/authService';
 import { registerSchema, type RegisterFormData } from '@/lib/validations/auth';
 
+const PLAN_NAMES: Record<string, string> = {
+  basico: 'Básico',
+  profesional: 'Profesional',
+  empresarial: 'Empresarial',
+};
+
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  // Capturar el plan de la URL y guardarlo en localStorage
+  useEffect(() => {
+    const planFromUrl = searchParams.get('plan');
+    if (planFromUrl && PLAN_NAMES[planFromUrl]) {
+      setSelectedPlan(planFromUrl);
+      localStorage.setItem('selected_plan', planFromUrl);
+    } else {
+      // Verificar si hay un plan guardado previamente
+      const savedPlan = localStorage.getItem('selected_plan');
+      if (savedPlan && PLAN_NAMES[savedPlan]) {
+        setSelectedPlan(savedPlan);
+      }
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -56,6 +79,35 @@ export default function RegisterPage() {
           Comienza a gestionar tu inventario con SRI
         </p>
       </div>
+
+      {/* Selected Plan Banner */}
+      {selectedPlan && (
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                Plan seleccionado
+              </p>
+              <p className="text-lg font-bold text-blue-900 dark:text-blue-200">
+                {PLAN_NAMES[selectedPlan]}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedPlan(null);
+                localStorage.removeItem('selected_plan');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
+            >
+              Cambiar plan
+            </button>
+          </div>
+          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+            Podrás activar tu suscripción después de crear tu empresa
+          </p>
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (

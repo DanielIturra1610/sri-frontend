@@ -38,6 +38,14 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState<PeriodType>('30d');
 
+  // Check for pending plan selection and redirect to billing
+  useEffect(() => {
+    const selectedPlan = localStorage.getItem('selected_plan');
+    if (selectedPlan) {
+      router.push('/settings/billing');
+    }
+  }, [router]);
+
   // Load dashboard data
   useEffect(() => {
     loadDashboardData();
